@@ -71,6 +71,35 @@ class TestParseMenu(unittest.TestCase):
         self.assertEqual(item["allergens"], "soy")
         self.assertEqual(item["ingredient_list"], "Rice, soy sauce")
 
+    def test_supabase_payload_deduplicates_conflict_keys_only(self):
+        from scraper.upload_to_supabase import flatten_menu_payload
+
+        menu = {
+            "days": {
+                "2026-04-24": {
+                    "date": "2026-04-24",
+                    "commons": {
+                        "franklin": {
+                            "meals": {
+                                "lunch": {
+                                    "Station A": [{"name": "White Rice", "calories": 100}],
+                                    "Station B": [{"name": "White Rice", "calories": 100}],
+                                },
+                                "dinner": {
+                                    "Station A": [{"name": "White Rice", "calories": 100}],
+                                },
+                            }
+                        }
+                    },
+                }
+            }
+        }
+
+        rows = flatten_menu_payload(menu)
+        self.assertEqual(len(rows), 2)
+        lunch = next(row for row in rows if row["meal_period"] == "lunch")
+        self.assertEqual(lunch["station"], "Station A / Station B")
+
     def test_validate_menu_no_meals(self):
         from scraper.parse_menu import validate_menu
         warnings = validate_menu({"meals": {}})
