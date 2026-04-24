@@ -1,0 +1,284 @@
+{
+  "week_of": "2026-03-23",
+  "scraped_at": "2026-03-22T10:00:00-04:00",
+  "dining_commons": "franklin",
+  "source": "sample",
+  "failed_days": [],
+  "days": {
+    "monday": {
+      "date": "2026-03-23",
+      "meals": {
+        "breakfast": {
+          "Breakfast Entrees": [
+            { "name": "Scrambled Eggs", "serving_size": "1/2 cup", "calories": 180, "protein_g": 12.0, "fat_g": 14.0, "carbs_g": 2.0, "fiber_g": 0.0, "sodium_mg": 300, "dietary_tags": ["halal", "vegetarian"], "carbon_rating": "B" },
+            { "name": "Turkey Sausage", "serving_size": "2 links", "calories": 140, "protein_g": 11.0, "fat_g": 9.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 480, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Hash Browns", "serving_size": "1/2 cup", "calories": 130, "protein_g": 2.0, "fat_g": 6.0, "carbs_g": 18.0, "fiber_g": 2.0, "sodium_mg": 280, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "B" },
+            { "name": "Whole Wheat Toast", "serving_size": "1 slice", "calories": 80, "protein_g": 4.0, "fat_g": 1.0, "carbs_g": 15.0, "fiber_g": 2.0, "sodium_mg": 130, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Grilled Salmon", "serving_size": "3 oz", "calories": 175, "protein_g": 22.0, "fat_g": 9.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 340, "dietary_tags": [], "carbon_rating": "B" },
+            { "name": "Savory Baked Chicken Breast", "serving_size": "4 oz", "calories": 165, "protein_g": 31.0, "fat_g": 3.5, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 390, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" },
+            { "name": "Pasta Marinara", "serving_size": "1 cup", "calories": 280, "protein_g": 9.0, "fat_g": 5.0, "carbs_g": 52.0, "fiber_g": 4.0, "sodium_mg": 560, "dietary_tags": ["vegetarian"], "carbon_rating": "B" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" },
+            { "name": "Garlic Naan", "serving_size": "1 piece", "calories": 180, "protein_g": 5.0, "fat_g": 4.0, "carbs_g": 32.0, "fiber_g": 1.0, "sodium_mg": 310, "dietary_tags": ["vegetarian"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Sauteed Broccoli", "serving_size": "1/2 cup", "calories": 45, "protein_g": 3.0, "fat_g": 2.0, "carbs_g": 5.0, "fiber_g": 2.0, "sodium_mg": 120, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" },
+            { "name": "Roasted Spiced Carrots", "serving_size": "1/2 cup", "calories": 60, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 10.0, "fiber_g": 2.5, "sodium_mg": 140, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ],
+          "Soups": [
+            { "name": "Tomato Lentil Soup", "serving_size": "1 cup", "calories": 140, "protein_g": 7.0, "fat_g": 2.0, "carbs_g": 25.0, "fiber_g": 5.0, "sodium_mg": 680, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Paneer Tikka", "serving_size": "1/2 cup", "calories": 195, "protein_g": 12.0, "fat_g": 13.0, "carbs_g": 6.0, "fiber_g": 1.0, "sodium_mg": 380, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "B" }
+          ],
+          "Entrees": [
+            { "name": "Chana Masala", "serving_size": "1 cup", "calories": 220, "protein_g": 10.0, "fat_g": 5.0, "carbs_g": 36.0, "fiber_g": 9.0, "sodium_mg": 590, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" },
+            { "name": "Beef Stew", "serving_size": "1 cup", "calories": 260, "protein_g": 20.0, "fat_g": 10.0, "carbs_g": 24.0, "fiber_g": 3.0, "sodium_mg": 720, "dietary_tags": [], "carbon_rating": "D" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" },
+            { "name": "Garlic Bread", "serving_size": "1 slice", "calories": 120, "protein_g": 3.0, "fat_g": 5.0, "carbs_g": 17.0, "fiber_g": 1.0, "sodium_mg": 220, "dietary_tags": ["vegetarian"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" },
+            { "name": "Roasted Cauliflower", "serving_size": "1/2 cup", "calories": 55, "protein_g": 2.0, "fat_g": 2.0, "carbs_g": 8.0, "fiber_g": 3.0, "sodium_mg": 160, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "late_night": {
+          "Late Night Entrees": [
+            { "name": "Grilled Chicken Wrap", "serving_size": "1 wrap", "calories": 380, "protein_g": 30.0, "fat_g": 10.0, "carbs_g": 42.0, "fiber_g": 4.0, "sodium_mg": 780, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Veggie Burger", "serving_size": "1 burger", "calories": 310, "protein_g": 14.0, "fat_g": 8.0, "carbs_g": 48.0, "fiber_g": 6.0, "sodium_mg": 640, "dietary_tags": ["vegetarian"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    },
+    "tuesday": {
+      "date": "2026-03-24",
+      "meals": {
+        "breakfast": {
+          "Breakfast Entrees": [
+            { "name": "Scrambled Eggs", "serving_size": "1/2 cup", "calories": 180, "protein_g": 12.0, "fat_g": 14.0, "carbs_g": 2.0, "fiber_g": 0.0, "sodium_mg": 300, "dietary_tags": ["halal", "vegetarian"], "carbon_rating": "B" },
+            { "name": "Turkey Sausage", "serving_size": "2 links", "calories": 140, "protein_g": 11.0, "fat_g": 9.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 480, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ]
+        },
+        "lunch": {
+          "Grill Station": [
+            { "name": "Spiced Ground Beef", "serving_size": "4 oz", "calories": 250, "protein_g": 22.0, "fat_g": 16.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 460, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Roasted Spiced Carrots", "serving_size": "1/2 cup", "calories": 60, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 10.0, "fiber_g": 2.5, "sodium_mg": 140, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    },
+    "wednesday": {
+      "date": "2026-03-25",
+      "meals": {
+        "breakfast": {
+          "Breakfast Entrees": [
+            { "name": "Scrambled Eggs", "serving_size": "1/2 cup", "calories": 180, "protein_g": 12.0, "fat_g": 14.0, "carbs_g": 2.0, "fiber_g": 0.0, "sodium_mg": 300, "dietary_tags": ["halal", "vegetarian"], "carbon_rating": "B" },
+            { "name": "Hash Browns", "serving_size": "1/2 cup", "calories": 130, "protein_g": 2.0, "fat_g": 6.0, "carbs_g": 18.0, "fiber_g": 2.0, "sodium_mg": 280, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "B" }
+          ]
+        },
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Savory Baked Chicken Breast", "serving_size": "4 oz", "calories": 165, "protein_g": 31.0, "fat_g": 3.5, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 390, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" },
+            { "name": "Garlic Naan", "serving_size": "1 piece", "calories": 180, "protein_g": 5.0, "fat_g": 4.0, "carbs_g": 32.0, "fiber_g": 1.0, "sodium_mg": 310, "dietary_tags": ["vegetarian"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Sauteed Broccoli", "serving_size": "1/2 cup", "calories": 45, "protein_g": 3.0, "fat_g": 2.0, "carbs_g": 5.0, "fiber_g": 2.0, "sodium_mg": 120, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" },
+            { "name": "Roasted Spiced Carrots", "serving_size": "1/2 cup", "calories": 60, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 10.0, "fiber_g": 2.5, "sodium_mg": 140, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Paneer Tikka", "serving_size": "1/2 cup", "calories": 195, "protein_g": 12.0, "fat_g": 13.0, "carbs_g": 6.0, "fiber_g": 1.0, "sodium_mg": 380, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "B" }
+          ],
+          "Entrees": [
+            { "name": "Chana Masala", "serving_size": "1 cup", "calories": 220, "protein_g": 10.0, "fat_g": 5.0, "carbs_g": 36.0, "fiber_g": 9.0, "sodium_mg": 590, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    },
+    "thursday": {
+      "date": "2026-03-26",
+      "meals": {
+        "breakfast": {
+          "Breakfast Entrees": [
+            { "name": "Scrambled Eggs", "serving_size": "1/2 cup", "calories": 180, "protein_g": 12.0, "fat_g": 14.0, "carbs_g": 2.0, "fiber_g": 0.0, "sodium_mg": 300, "dietary_tags": ["halal", "vegetarian"], "carbon_rating": "B" },
+            { "name": "Turkey Sausage", "serving_size": "2 links", "calories": 140, "protein_g": 11.0, "fat_g": 9.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 480, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ]
+        },
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Grilled Salmon", "serving_size": "3 oz", "calories": 175, "protein_g": 22.0, "fat_g": 9.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 340, "dietary_tags": [], "carbon_rating": "B" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Roasted Spiced Carrots", "serving_size": "1/2 cup", "calories": 60, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 10.0, "fiber_g": 2.5, "sodium_mg": 140, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chana Masala", "serving_size": "1 cup", "calories": 220, "protein_g": 10.0, "fat_g": 5.0, "carbs_g": 36.0, "fiber_g": 9.0, "sodium_mg": 590, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    },
+    "friday": {
+      "date": "2026-03-27",
+      "meals": {
+        "breakfast": {
+          "Breakfast Entrees": [
+            { "name": "Scrambled Eggs", "serving_size": "1/2 cup", "calories": 180, "protein_g": 12.0, "fat_g": 14.0, "carbs_g": 2.0, "fiber_g": 0.0, "sodium_mg": 300, "dietary_tags": ["halal", "vegetarian"], "carbon_rating": "B" },
+            { "name": "Turkey Sausage", "serving_size": "2 links", "calories": 140, "protein_g": 11.0, "fat_g": 9.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 480, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Hash Browns", "serving_size": "1/2 cup", "calories": 130, "protein_g": 2.0, "fat_g": 6.0, "carbs_g": 18.0, "fiber_g": 2.0, "sodium_mg": 280, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "B" },
+            { "name": "Whole Wheat Toast", "serving_size": "1 slice", "calories": 80, "protein_g": 4.0, "fat_g": 1.0, "carbs_g": 15.0, "fiber_g": 2.0, "sodium_mg": 130, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Sauteed Broccoli", "serving_size": "1/2 cup", "calories": 45, "protein_g": 3.0, "fat_g": 2.0, "carbs_g": 5.0, "fiber_g": 2.0, "sodium_mg": 120, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    },
+    "saturday": {
+      "date": "2026-03-28",
+      "meals": {
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Grilled Salmon", "serving_size": "3 oz", "calories": 175, "protein_g": 22.0, "fat_g": 9.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 340, "dietary_tags": [], "carbon_rating": "B" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Roasted Spiced Carrots", "serving_size": "1/2 cup", "calories": 60, "protein_g": 1.0, "fat_g": 2.5, "carbs_g": 10.0, "fiber_g": 2.5, "sodium_mg": 140, "dietary_tags": ["vegetarian", "vegan"], "carbon_rating": "A" }
+          ]
+        },
+        "dinner": {
+          "Grill Station": [
+            { "name": "Masala Spiced Tilapia", "serving_size": "4 oz", "calories": 145, "protein_g": 24.0, "fat_g": 4.0, "carbs_g": 3.0, "fiber_g": 0.0, "sodium_mg": 410, "dietary_tags": ["halal"], "carbon_rating": "B" },
+            { "name": "Roasted Chicken Leg Quarter", "serving_size": "1 piece", "calories": 290, "protein_g": 34.0, "fat_g": 16.0, "carbs_g": 0.0, "fiber_g": 0.0, "sodium_mg": 540, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ]
+        }
+      }
+    },
+    "sunday": {
+      "date": "2026-03-29",
+      "meals": {
+        "lunch": {
+          "Grill Station": [
+            { "name": "Tandoori Chicken Thigh", "serving_size": "1 piece (170g)", "calories": 220, "protein_g": 28.0, "fat_g": 11.0, "carbs_g": 4.0, "fiber_g": 0.0, "sodium_mg": 520, "dietary_tags": ["halal"], "carbon_rating": "C" }
+          ],
+          "Entrees": [
+            { "name": "Chicken Tikka Masala", "serving_size": "1 cup", "calories": 310, "protein_g": 24.0, "fat_g": 14.0, "carbs_g": 22.0, "fiber_g": 3.0, "sodium_mg": 680, "dietary_tags": ["halal"], "carbon_rating": "C" },
+            { "name": "Lentil Dal", "serving_size": "1 cup", "calories": 180, "protein_g": 11.0, "fat_g": 3.0, "carbs_g": 30.0, "fiber_g": 8.0, "sodium_mg": 450, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "A" }
+          ],
+          "Starches & Grains": [
+            { "name": "Basmati Rice", "serving_size": "1 cup", "calories": 210, "protein_g": 4.0, "fat_g": 0.5, "carbs_g": 46.0, "fiber_g": 1.0, "sodium_mg": 5, "dietary_tags": ["vegetarian", "vegan", "halal"], "carbon_rating": "B" }
+          ],
+          "Vegetables": [
+            { "name": "Saag (Spiced Spinach)", "serving_size": "1/2 cup", "calories": 70, "protein_g": 4.0, "fat_g": 3.5, "carbs_g": 7.0, "fiber_g": 3.0, "sodium_mg": 290, "dietary_tags": ["vegetarian", "halal"], "carbon_rating": "A" }
+          ]
+        }
+      }
+    }
+  }
+}

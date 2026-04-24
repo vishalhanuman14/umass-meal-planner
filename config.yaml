@@ -1,0 +1,108 @@
+daily_targets:
+  calories: 2200
+  protein_g: 120
+
+home_meals:
+  breakfast:
+    options:
+      - name: "Oats + milk"
+        calories: 350
+        protein_g: 12
+      - name: "Eggs + bread + peanut butter"
+        calories: 450
+        protein_g: 20
+    strategy: average  # uses 400 cal, 16g P
+
+  dinner_at_home:
+    name: "Chicken breast + rice (200g chicken, 1 cup rice)"
+    calories: 500
+    protein_g: 40
+
+dining_commons: franklin
+dc_location_id: 2
+menu_url: "https://umassdining.com/locations-menus/franklin/menu"
+
+dc_meal_split:
+  pre_shift_pct: 0.45
+  post_shift_pct: 0.55
+
+taste_preferences:
+  cuisine: indian
+  loves:
+    - curries
+    - tandoori
+    - masala-seasoned dishes
+    - rice dishes
+    - spicy food
+    - dal/lentils
+    - paneer
+    - naan/flatbread
+    - bold seasonings
+  dislikes:
+    - plain unseasoned chicken
+    - bland pasta
+    - plain steamed vegetables
+    - plain salads
+  allergies: []
+
+optimizer:
+  min_items_per_meal: 2
+  max_items_per_meal: 5
+  max_servings_per_item: 3
+  calorie_overshoot_limit: 100
+  target_tolerance_pct: 0.10
+  top_candidates: 5
+
+schedule:
+  timezone: "America/New_York"
+
+  monday:
+    shift: { start: "16:00", end: "19:30", type: "Grab n Go" }
+    dc_meals:
+      pre_shift: { period: lunch, eat_by: "15:30" }
+      post_shift: { period: dinner, eat_after: "19:30" }
+    email_times:
+      pre_shift: "15:30"
+      post_shift: "19:30"
+
+  tuesday:
+    shift: { start: "12:30", end: "16:00", type: "Carney Cafe" }
+    dc_meals: null
+    note: "Self-managed — aim for ~1300 cal, 64g P from other sources"
+
+  wednesday:
+    shift: { start: "13:00", end: "16:30", type: "Grab n Go" }
+    dc_meals:
+      pre_shift: { period: lunch, eat_by: "12:30" }
+      post_shift: { period: dinner, eat_after: "16:30" }
+    email_times:
+      pre_shift: "12:30"
+      post_shift: "16:30"
+
+  thursday:
+    shift: { start: "14:30", end: "18:00", type: "Runner" }
+    dc_meals:
+      pre_shift: { period: lunch, eat_by: "14:00" }
+      post_shift: { period: dinner, eat_after: "18:00" }
+    email_times:
+      pre_shift: "14:00"
+      post_shift: "18:00"
+
+  friday:
+    shift: { start: "11:00", end: "14:30", type: "Line" }
+    dc_meals:
+      pre_shift: { period: breakfast, eat_by: "10:30" }
+      post_shift: { period: dinner, eat_after: "14:30" }
+    email_times:
+      pre_shift: "10:30"
+      post_shift: "14:30"
+
+  saturday:
+    shift: null
+    dc_meals: flexible
+    note: "Free day — optional DC visit"
+
+  sunday:
+    shift: null
+    dc_meals: flexible
+    note: "Free day — optional DC visit"

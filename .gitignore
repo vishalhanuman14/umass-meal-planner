@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/weekly_menu.json
+data/weekly_plan.json
+data/weekly_plan.txt
+data/manual_input.json
+data/.scrape_failed
+data/.scrape_attempt_count
+data/logs/*.log
