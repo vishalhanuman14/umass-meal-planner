@@ -47,17 +47,18 @@ The developer (Vishnu) is a UMass student who:
 - The Supabase MCP in this environment can read project/org metadata and apply migrations to existing projects, but project creation returned `Cannot create a project in read-only mode`; use the Supabase dashboard for creation if that persists.
 - Supabase MCP function deployment returned `Cannot deploy an edge function in read-only mode`, so Edge Functions were deployed via `npx supabase@latest` after CLI login on 2026-04-24.
 - Deployed Edge Functions: `generate-meal-plan` and `chat`, both active with `verify_jwt=true`. Unauthenticated smoke tests return `401 Missing authorization header`, which confirms the endpoints are reachable and protected.
+- Edge Functions use the Gemini REST API through `supabase/functions/_shared/gemini.ts` with the `gemini-flash-latest` model alias. Keep structured output on: `responseMimeType: "application/json"` plus `responseJsonSchema`. Keep `thinkingConfig.thinkingBudget = 0` for Flash JSON calls unless quality issues require revisiting it.
 - Local Supabase config exists at `supabase/config.toml`. It includes Google Auth config using env placeholders, `site_url = "https://thaoylgvgsvbouyirdfg.supabase.co"`, and `additional_redirect_urls = ["umassnutrition://auth/callback"]`.
 - Local mobile env file `mobile/.env` has been created with `EXPO_PUBLIC_SUPABASE_URL` and the project publishable key. It is ignored by `mobile/.gitignore`.
-- Edge Function runtime secrets are configured, including `GEMINI_API_KEY` and default Supabase secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `SUPABASE_JWKS`). Scraper/GitHub Actions still need `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` secrets.
+- Edge Function runtime secrets are configured, including `GEMINI_API_KEY` and default Supabase secrets (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `SUPABASE_JWKS`).
 - Google Auth is now enabled in Supabase for project `thaoylgvgsvbouyirdfg`. A separate Google OAuth web client named `UMass Nutrition` was created in Google Cloud project `hare-platform` with origin `https://thaoylgvgsvbouyirdfg.supabase.co` and callback `https://thaoylgvgsvbouyirdfg.supabase.co/auth/v1/callback`. Do not print or commit the OAuth client secret.
 - Mobile Google Sign-In was fixed after the simulator showed `Google sign-in completed without an auth code`: the Supabase client uses PKCE (`flowType: "pkce"`), and the callback parser handles both query params and hash params before exchanging or setting the session.
-- Simulator E2E check on 2026-04-24: Expo launched on iPhone 17 Pro / iOS 26.2, Google sign-in with the UMass account succeeded, onboarding saved a profile, and Home loaded.
+- Simulator E2E check on 2026-04-24: Expo launched on iPhone 17 Pro / iOS 26.2, Google sign-in with the UMass account succeeded, onboarding saved a profile, Home loaded, Regenerate produced a real meal plan, and Chat returned a menu-aware response.
 - Home crash fixed after onboarding: a stale/incomplete cached `meal_plans.plan_json` caused `Cannot convert undefined value to object` in `HomeScreen`. Home now guards against incomplete cached plans, clears stale state before regeneration, and shows an error/empty state instead of crashing.
+- Chat ordering fixed after the simulator showed the assistant reply above the user question. Cause: user and assistant rows inserted together could share the same `created_at`. The client now sorts by `created_at` plus user-before-assistant, and the `chat` Edge Function writes the assistant row 1 ms after the user row.
 - Intended scheduled automation is the GitHub Actions workflow `.github/workflows/scrape.yml`: run the Python scraper daily, upload menu rows to Supabase with repo secrets, then app/Edge Functions read those rows. Do not replace this with a scheduled Supabase Edge Function unless the scraper is rewritten for Deno.
-- `.github/workflows/scrape.yml` is structurally correct locally, but GitHub currently reports zero workflows for `vishalhanuman14/umass-meal-planner`; commit and push the workflow before expecting it to run.
-- GitHub currently reports zero repo Actions secrets; add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` before manually running or relying on the scrape workflow.
-- Remaining Home/meal-plan E2E work: diagnose why the current cached/generated plan is incomplete or null, inspect/clean the stale `meal_plans` row, and confirm today's `menu_items` are seeded/uploaded. If no menu rows exist for today, the expected state is `Menu not available yet`.
+- GitHub Actions workflow `Daily Menu Scrape` is active on `origin/main`. Repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Manual run `24877254684` succeeded after uploader-side deduplication by `(date, dining_commons, meal_period, item_name)`.
+- Supabase `menu_items` are seeded for 2026-04-24 through 2026-04-30. The 2026-04-24 count was verified at 595 rows across all four dining commons.
 - Do not commit Supabase database passwords, service role keys, anon keys, Google OAuth secrets, or Gemini API keys. Use dashboard/project secrets, GitHub Actions secrets, and local `.env` files only.
 
 ### Key Technical Details
@@ -84,15 +85,15 @@ The developer (Vishnu) is a UMass student who:
 
 ### Scraper
 - HTTP fetch works reliably. Playwright fallback exists but rarely needed.
-- The `data-ingredient-list` attribute exists on items but is NOT currently scraped. Add it — useful for allergen/dietary filtering.
-- Scraper currently saves to local JSON files. New version must write to Supabase instead (or in addition to).
-- `normalize_menu()` in `parse_menu.py` deduplicates items across periods using a `seen_names` set. **This must be disabled for Supabase** — the same item (e.g., "White Rice") legitimately appears in both lunch and dinner.
+- The scraper extracts `data-ingredient-list`; keep it because it is useful for allergen/dietary filtering.
+- Scraper can save local JSON and upload to Supabase with `--upload-supabase`.
+- Supabase uploads intentionally deduplicate only by the DB conflict key `(date, dining_commons, meal_period, item_name)`. Do not deduplicate only by item name because the same item can appear in multiple periods.
 
 ### Edge Functions
 - Supabase Edge Functions run on Deno, not Node.js. Use Deno-compatible imports.
 - Gemini SDK: use `@google/generative-ai` npm package (works in Deno via npm: specifier) or direct REST API calls.
-- Always use `gemini-2.5-flash` model — balances speed, cost, and quality.
-- Set `response_mime_type: "application/json"` in Gemini config for structured output (see `llm_planner.py` line 221 for example).
+- Use the `gemini-flash-latest` alias unless there is a strong reason to pin a stable version.
+- Set JSON structured output in the API call, not only in prompt text: `responseMimeType: "application/json"` and `responseJsonSchema`.
 - Edge Functions must authenticate the calling user via Supabase JWT — extract user_id from the auth header, don't trust client-sent user_id.
 
 ### Mobile App

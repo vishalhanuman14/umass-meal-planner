@@ -42,6 +42,7 @@ Mobile calorie/nutrition app for UMass Amherst students. App pulls daily dining 
 - Supabase project created: `umass-meal-planner` (`thaoylgvgsvbouyirdfg`) in `us-east-1`, API URL `https://thaoylgvgsvbouyirdfg.supabase.co`.
 - Initial schema is applied and verified for `menu_items`, `profiles`, `meal_plans`, and `chat_messages`, including RLS for authenticated menu reads and own-row profile/meal/chat access.
 - Supabase Edge Functions `generate-meal-plan` and `chat` are deployed with JWT verification enabled. Unauthenticated requests return `401 Missing authorization header`, so endpoints are reachable and protected.
+- Edge Functions now use Gemini `gemini-flash-latest` with structured JSON schemas and `thinkingBudget: 0`; this fixed the simulator errors `Gemini returned invalid JSON` and `Gemini response was truncated`.
 - Edge Function secrets are configured for Gemini and Supabase runtime access.
 - Expo mobile app exists under `mobile/` with React Navigation, Supabase client, secure token storage, Google sign-in, onboarding, Home, Chat, and Settings screens.
 - `mobile/.env` is configured locally with the Supabase URL and publishable key and is ignored by git.
@@ -50,19 +51,17 @@ Mobile calorie/nutrition app for UMass Amherst students. App pulls daily dining 
 - Mobile Google sign-in works on the iOS simulator with the UMass Google account. The app gates signed-in sessions to `@umass.edu`.
 - Onboarding was completed once in the simulator and a profile row was saved.
 - Home no longer crashes on stale/incomplete cached meal plans. `HomeScreen` now guards against missing `meals`/`daily_total`, clears stale state before regeneration, and shows an empty/error state instead of throwing.
-- Local scraper workflow exists at `.github/workflows/scrape.yml` and its command matches the scraper CLI, but it is not active on GitHub until the file is committed and pushed.
+- Home Regenerate works end to end in the simulator: the live Edge Function generated a meal plan and the app rendered daily macro summary plus meal cards.
+- Chat works end to end in the simulator with today's menu context. Message order is fixed by deterministic client sorting and server-side timestamp separation for user/assistant rows.
+- GitHub Actions workflow `Daily Menu Scrape` is active on GitHub. Repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured.
+- Manual workflow run `24877254684` succeeded and uploaded menu rows to Supabase for 2026-04-24 through 2026-04-30. 2026-04-24 was verified at 595 rows.
 - `npm run typecheck` passes in `mobile/`.
 
 ### Remaining
 
-- Inspect/clean the current stale `meal_plans` row for today; it appears to contain an incomplete or null `plan_json`.
-- Verify today's `menu_items` rows exist in Supabase. If not, run/upload the scraper output for all dining commons before expecting Gemini plan generation to work.
-- Re-run Home end-to-end after data is present: load cached plan, regenerate plan, verify daily summary and meal cards render.
-- Test Chat end-to-end with the authenticated user and today's menu data.
-- Commit/push `.github/workflows/scrape.yml` and `scraper/upload_to_supabase.py`; GitHub currently reports zero workflows for `vishalhanuman14/umass-meal-planner`.
-- Add GitHub Actions secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`; GitHub currently reports zero repo Actions secrets.
-- After committing and adding secrets, run the `Daily Menu Scrape` workflow manually and verify it uploads menu rows.
-- Deploy or document any Supabase config changes needed outside local `config.toml`.
+- Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+- Consider upgrading GitHub Actions versions when GitHub's Node 20 deprecation warning becomes actionable for `actions/checkout@v4` or `actions/setup-python@v5`.
+- Do a final UI polish pass for long chat responses and dense meal-card content on smaller screens.
 - Decide whether to keep using the `hare-platform` Google Cloud project for this app or move OAuth into a dedicated Google Cloud project later.
 
 ---
@@ -389,7 +388,7 @@ MainStack (authenticated, onboarding_completed)
 1. Fetch user profile from `profiles`
 2. Fetch today's menu items from `menu_items` for user's preferred dining commons (or all if none set)
 3. Build Gemini prompt (see Prompt Design below)
-4. Call Gemini API (`gemini-2.5-flash` — fast + cheap)
+4. Call Gemini API (`gemini-flash-latest` with structured JSON schema)
 5. Parse structured JSON response
 6. Upsert into `meal_plans` table
 7. Return plan JSON to client
@@ -516,7 +515,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 ```
 
-Current local workflow matches this command. It is not active in GitHub until `.github/workflows/scrape.yml` is committed and pushed, and the repo secrets are added.
+Current workflow is active on GitHub and repo secrets are set. Manual run `24877254684` succeeded after uploader-side deduplication by `(date, dining_commons, meal_period, item_name)`.
 
 Scraper should:
 1. Fetch today + next 6 days for all 4 commons
@@ -651,7 +650,7 @@ umass-meal-planner/
 ## Constraints & Notes
 
 - **Free tier focus**: Supabase free tier = 500MB DB, 50K monthly active users, 500K Edge Function invocations. More than enough.
-- **Gemini model**: Use `gemini-2.5-flash` for both meal plans and chat. Fast, cheap, good enough.
+- **Gemini model**: Use `gemini-flash-latest` for both meal plans and chat unless pinning becomes necessary. Use structured JSON schema responses and `thinkingBudget: 0` for Flash JSON calls.
 - **No offline support needed**. App requires internet.
 - **Single user focus**. No social features, no sharing, no friends.
 - **UMass-only**. No multi-university support needed.
