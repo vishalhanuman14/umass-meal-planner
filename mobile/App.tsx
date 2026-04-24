@@ -1,4 +1,4 @@
-import { NavigationContainer, DarkTheme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -24,12 +24,12 @@ const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 
 const theme = {
-  ...DarkTheme,
+  ...DefaultTheme,
   colors: {
-    ...DarkTheme.colors,
+    ...DefaultTheme.colors,
     background: colors.background,
     card: colors.surface,
-    primary: colors.amber,
+    primary: colors.primary,
     text: colors.text,
     border: colors.border
   }
@@ -70,7 +70,7 @@ function MainNavigator() {
         contentStyle: { backgroundColor: colors.background }
       }}
     >
-      <MainStack.Screen name="Home" component={HomeScreen} options={{ title: "Today" }} />
+      <MainStack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <MainStack.Screen name="Chat" component={ChatScreen} options={{ title: "Ask" }} />
       <MainStack.Screen name="Settings" component={SettingsScreen} options={{ title: "Settings" }} />
     </MainStack.Navigator>
@@ -84,7 +84,7 @@ function RootNavigator() {
   if (authLoading || (session && profileLoading)) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color={colors.amber} />
+        <ActivityIndicator color={colors.primary} />
       </View>
     );
   }
@@ -105,7 +105,7 @@ export default function App() {
     <AuthProvider>
       <ProfileProvider>
         <NavigationContainer theme={theme}>
-          <StatusBar style="light" />
+          <StatusBar style="dark" />
           <RootNavigator />
         </NavigationContainer>
       </ProfileProvider>

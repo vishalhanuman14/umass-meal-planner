@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, Text
 
 import OnboardingProgress from "../../components/OnboardingProgress";
 import { useProfile } from "../../contexts/ProfileContext";
-import { colors, getDiningCommon, titleCase } from "../../theme";
+import { colors, getDiningCommon, shadows, titleCase } from "../../theme";
 import type { PreferencesProps } from "../../types";
 
 const dietaryOptions = ["vegetarian", "vegan", "halal", "kosher", "gluten-free", "dairy-free"];
@@ -43,7 +43,6 @@ export default function PreferencesScreen(_props: PreferencesProps) {
       <OnboardingProgress step={3} total={3} />
       <View style={styles.header}>
         <Text style={styles.heading}>What should it avoid or prefer?</Text>
-        <Text style={styles.subtitle}>Keep it practical: dietary style, allergens, dining commons, and meal timing.</Text>
       </View>
 
       <OptionGroup title="Dietary style" options={dietaryOptions} selected={dietary} onChange={setDietary} />
@@ -51,7 +50,7 @@ export default function PreferencesScreen(_props: PreferencesProps) {
       <DiningCommonsGroup selected={preferred} onChange={setPreferred} />
 
       <View style={styles.field}>
-        <Text style={styles.label}>Additional preferences</Text>
+        <Text style={styles.label}>Notes</Text>
         <TextInput
           value={additional}
           onChangeText={setAdditional}
@@ -63,7 +62,7 @@ export default function PreferencesScreen(_props: PreferencesProps) {
       </View>
 
       <Pressable style={styles.primaryButton} onPress={completeSetup} disabled={saving}>
-        {saving ? <ActivityIndicator color={colors.text} /> : <Text style={styles.primaryText}>Build today's plan</Text>}
+        {saving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.primaryText}>Build today's plan</Text>}
       </Pressable>
     </ScrollView>
   );
@@ -89,7 +88,7 @@ function OptionGroup({
       <Text style={styles.label}>{title}</Text>
       <View style={styles.chips}>
         <Pressable style={[styles.chip, selected.length === 0 && styles.chipSelected]} onPress={() => onChange([])}>
-          <Text style={[styles.chipText, selected.length === 0 && styles.chipTextSelected]}>No preference</Text>
+          <Text style={[styles.chipText, selected.length === 0 && styles.chipTextSelected]}>Any</Text>
         </Pressable>
         {options.map((option) => {
           const isSelected = selected.includes(option);
@@ -114,7 +113,7 @@ function DiningCommonsGroup({ selected, onChange }: { selected: string[]; onChan
       <Text style={styles.label}>Dining commons</Text>
       <Pressable style={[styles.commonRow, selected.length === 0 && styles.commonRowSelected]} onPress={() => onChange([])}>
         <View style={[styles.commonDot, { backgroundColor: colors.muted }]} />
-        <Text style={[styles.commonName, selected.length === 0 && styles.commonNameSelected]}>No preference</Text>
+        <Text style={[styles.commonName, selected.length === 0 && styles.commonNameSelected]}>Any</Text>
       </Pressable>
       {diningCommons.map((option) => {
         const common = getDiningCommon(option);
@@ -133,33 +132,32 @@ function DiningCommonsGroup({ selected, onChange }: { selected: string[]; onChan
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, gap: 18 },
-  header: { gap: 8 },
-  heading: { color: colors.text, fontSize: 26, fontWeight: "800", lineHeight: 31 },
-  subtitle: { color: colors.muted, fontSize: 15, lineHeight: 22 },
-  group: { gap: 10 },
+  header: { ...shadows.card, gap: 8, padding: 18, borderRadius: 24, backgroundColor: colors.surface },
+  heading: { color: colors.text, fontSize: 26, fontWeight: "900", lineHeight: 31 },
+  group: { ...shadows.soft, gap: 10, padding: 16, borderRadius: 22, backgroundColor: colors.surface },
   label: { color: colors.muted, fontSize: 14, fontWeight: "700" },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   chip: {
-    paddingHorizontal: 13,
+    paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface
   },
-  chipSelected: { borderColor: colors.maroon, backgroundColor: colors.elevated },
+  chipSelected: { borderColor: colors.primary, backgroundColor: colors.primary },
   chipText: { color: colors.muted, fontWeight: "700" },
-  chipTextSelected: { color: colors.text },
-  commonRow: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  commonRowSelected: { borderColor: colors.maroon, backgroundColor: colors.elevated },
+  chipTextSelected: { color: colors.onPrimary },
+  commonRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  commonRowSelected: { borderColor: colors.primary, backgroundColor: colors.surfaceWarm },
   commonDot: { width: 9, height: 9, borderRadius: 9 },
   commonName: { color: colors.muted, fontSize: 15, fontWeight: "800" },
   commonNameSelected: { color: colors.text },
-  field: { gap: 8 },
+  field: { ...shadows.soft, gap: 8, padding: 16, borderRadius: 22, backgroundColor: colors.surface },
   textArea: {
     minHeight: 100,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.text,
@@ -167,6 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlignVertical: "top"
   },
-  primaryButton: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: colors.maroon },
-  primaryText: { color: colors.text, fontWeight: "800", fontSize: 16 }
+  primaryButton: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.primary, ...shadows.soft },
+  primaryText: { color: colors.onPrimary, fontWeight: "900", fontSize: 16 }
 });

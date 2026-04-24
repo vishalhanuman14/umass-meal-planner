@@ -3,8 +3,8 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, Text
 
 import { useAuth } from "../contexts/AuthContext";
 import { useProfile } from "../contexts/ProfileContext";
-import { calculateTargets } from "../lib/tdee";
-import { colors, getDiningCommon, titleCase } from "../theme";
+import { calculateTargets, cmToInches, inchesToCm, kgToPounds, poundsToKg } from "../lib/tdee";
+import { colors, getDiningCommon, shadows, titleCase } from "../theme";
 import type { ActivityLevel, Gender, Goal, SettingsProps } from "../types";
 
 const goals: Goal[] = ["lose", "gain", "maintain"];
@@ -14,12 +14,13 @@ const dietaryOptions = ["vegetarian", "vegan", "halal", "kosher", "gluten-free",
 const allergenOptions = ["peanuts", "tree nuts", "shellfish", "soy", "eggs", "wheat", "milk"];
 const diningCommons = ["worcester", "franklin", "hampshire", "berkshire"];
 
-export default function SettingsScreen(_props: SettingsProps) {
+export default function SettingsScreen({ navigation }: SettingsProps) {
   const { signOut } = useAuth();
   const { profile, saveProfile } = useProfile();
   const [saving, setSaving] = useState(false);
-  const [heightCm, setHeightCm] = useState("");
-  const [weightKg, setWeightKg] = useState("");
+  const [feet, setFeet] = useState("");
+  const [inches, setInches] = useState("");
+  const [weightLb, setWeightLb] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState<Gender>("male");
   const [goal, setGoal] = useState<Goal>("maintain");
@@ -31,8 +32,10 @@ export default function SettingsScreen(_props: SettingsProps) {
 
   useEffect(() => {
     if (!profile) return;
-    setHeightCm(profile.height_cm ? String(Math.round(profile.height_cm)) : "");
-    setWeightKg(profile.weight_kg ? String(profile.weight_kg) : "");
+    const heightIn = profile.height_cm ? cmToInches(profile.height_cm) : null;
+    setFeet(heightIn ? String(Math.floor(heightIn / 12)) : "");
+    setInches(heightIn ? String(Math.round(heightIn % 12)) : "");
+    setWeightLb(profile.weight_kg ? String(Math.round(kgToPounds(profile.weight_kg))) : "");
     setAge(profile.age ? String(profile.age) : "");
     setGender(profile.gender ?? "male");
     setGoal(profile.goal ?? "maintain");
@@ -44,19 +47,19 @@ export default function SettingsScreen(_props: SettingsProps) {
   }, [profile]);
 
   const recalculated = useMemo(() => {
-    const parsedHeight = Number(heightCm);
-    const parsedWeight = Number(weightKg);
+    const parsedHeight = Number(feet) * 12 + Number(inches);
+    const parsedWeight = Number(weightLb);
     const parsedAge = Number(age);
     if (!parsedHeight || !parsedWeight || !parsedAge) return null;
     return calculateTargets({
-      heightCm: parsedHeight,
-      weightKg: parsedWeight,
+      heightCm: inchesToCm(parsedHeight),
+      weightKg: poundsToKg(parsedWeight),
       age: parsedAge,
       gender,
       activityLevel: activity,
       goal
     });
-  }, [activity, age, gender, goal, heightCm, weightKg]);
+  }, [activity, age, feet, gender, goal, inches, weightLb]);
 
   async function save() {
     if (!recalculated) {
@@ -65,9 +68,10 @@ export default function SettingsScreen(_props: SettingsProps) {
     }
     setSaving(true);
     try {
+      const heightIn = Number(feet) * 12 + Number(inches);
       await saveProfile({
-        height_cm: Number(heightCm),
-        weight_kg: Number(weightKg),
+        height_cm: Math.round(inchesToCm(heightIn)),
+        weight_kg: Math.round(poundsToKg(Number(weightLb)) * 10) / 10,
         age: Number(age),
         gender,
         goal,
@@ -78,7 +82,7 @@ export default function SettingsScreen(_props: SettingsProps) {
         additional_preferences: additional.trim(),
         ...recalculated
       });
-      Alert.alert("Saved", "Profile updated.");
+      navigation.navigate("Home", { refreshPlanAt: new Date().toISOString() });
     } catch (error) {
       Alert.alert("Could not save", error instanceof Error ? error.message : "Try again.");
     } finally {
@@ -88,22 +92,6 @@ export default function SettingsScreen(_props: SettingsProps) {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <Text style={styles.kicker}>Profile</Text>
-        <Text style={styles.name}>{profile?.name || "UMass student"}</Text>
-        <Text style={styles.email}>{profile?.email}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Baseline</Text>
-        <View style={styles.row}>
-          <Field label="Height cm" value={heightCm} onChangeText={setHeightCm} />
-          <Field label="Weight kg" value={weightKg} onChangeText={setWeightKg} />
-        </View>
-        <Field label="Age" value={age} onChangeText={setAge} />
-        <ChoiceGroup title="Gender" options={genders} selected={gender} onSelect={(value) => setGender(value as Gender)} />
-      </View>
-
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Preferences</Text>
         <ChoiceGroup title="Goal" options={goals} selected={goal} onSelect={(value) => setGoal(value as Goal)} />
@@ -117,25 +105,47 @@ export default function SettingsScreen(_props: SettingsProps) {
         <DiningCommonsGroup selected={preferred} onChange={setPreferred} />
       </View>
 
-      {recalculated ? (
-        <Text style={styles.targets}>
-          {recalculated.calorie_target} cal / {recalculated.protein_target_g}g P / {recalculated.fat_target_g}g F /{" "}
-          {recalculated.carbs_target_g}g C
-        </Text>
-      ) : null}
-
-      <View style={styles.field}>
-        <Text style={styles.label}>Additional preferences</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Notes</Text>
         <TextInput value={additional} onChangeText={setAdditional} multiline style={styles.textArea} placeholderTextColor={colors.quiet} />
       </View>
 
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Body info</Text>
+        <View style={styles.row}>
+          <Field label="Feet" value={feet} onChangeText={setFeet} />
+          <Field label="In" value={inches} onChangeText={setInches} />
+        </View>
+        <View style={styles.row}>
+          <Field label="Weight lb" value={weightLb} onChangeText={setWeightLb} />
+          <Field label="Age" value={age} onChangeText={setAge} />
+        </View>
+        <ChoiceGroup title="Gender" options={genders} selected={gender} onSelect={(value) => setGender(value as Gender)} />
+      </View>
+
+      {recalculated ? (
+        <View style={styles.targetCard}>
+          <Text style={styles.label}>Daily target</Text>
+          <Text style={styles.targets}>
+            {recalculated.calorie_target} cal / {recalculated.protein_target_g}g protein
+          </Text>
+        </View>
+      ) : null}
+
       <Pressable style={styles.primaryButton} onPress={save} disabled={saving}>
-        {saving ? <ActivityIndicator color={colors.text} /> : <Text style={styles.primaryText}>Save</Text>}
+        {saving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.primaryText}>Save</Text>}
       </Pressable>
-      <Pressable style={styles.secondaryButton} onPress={signOut}>
-        <Text style={styles.secondaryText}>Sign out</Text>
-      </Pressable>
-      <Text style={styles.version}>Version 0.1.0</Text>
+
+      <View style={styles.accountCard}>
+        <View>
+          <Text style={styles.kicker}>Account</Text>
+          <Text style={styles.name}>{profile?.name || "UMass student"}</Text>
+          <Text style={styles.email}>{profile?.email}</Text>
+        </View>
+        <Pressable style={styles.secondaryButton} onPress={signOut}>
+          <Text style={styles.secondaryText}>Sign out</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -194,7 +204,7 @@ function MultiChoiceGroup({
       <Text style={styles.label}>{title}</Text>
       <View style={styles.chips}>
         <Pressable style={[styles.chip, selected.length === 0 && styles.chipSelected]} onPress={() => onChange([])}>
-          <Text style={[styles.chipText, selected.length === 0 && styles.chipTextSelected]}>No preference</Text>
+          <Text style={[styles.chipText, selected.length === 0 && styles.chipTextSelected]}>Any</Text>
         </Pressable>
         {options.map((option) => {
           const isSelected = selected.includes(option);
@@ -218,7 +228,7 @@ function DiningCommonsGroup({ selected, onChange }: { selected: string[]; onChan
     <View style={styles.commonsList}>
       <Pressable style={[styles.commonRow, selected.length === 0 && styles.commonRowSelected]} onPress={() => onChange([])}>
         <View style={[styles.commonDot, { backgroundColor: colors.muted }]} />
-        <Text style={[styles.commonName, selected.length === 0 && styles.commonNameSelected]}>No preference</Text>
+        <Text style={[styles.commonName, selected.length === 0 && styles.commonNameSelected]}>Any</Text>
       </Pressable>
       {diningCommons.map((option) => {
         const common = getDiningCommon(option);
@@ -236,12 +246,11 @@ function DiningCommonsGroup({ selected, onChange }: { selected: string[]; onChan
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 16 },
-  card: { padding: 16, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.elevated },
-  kicker: { color: colors.amber, fontSize: 12, fontWeight: "900", textTransform: "uppercase" },
+  content: { padding: 20, paddingBottom: 28, gap: 16 },
+  kicker: { color: colors.primary, fontSize: 12, fontWeight: "900", textTransform: "uppercase" },
   email: { color: colors.muted, fontSize: 14, marginTop: 4 },
-  name: { color: colors.text, fontSize: 22, fontWeight: "800", marginTop: 6 },
-  section: { gap: 12 },
+  name: { color: colors.text, fontSize: 18, fontWeight: "900", marginTop: 6 },
+  section: { ...shadows.soft, gap: 12, padding: 16, borderRadius: 22, backgroundColor: colors.surface },
   sectionTitle: { color: colors.text, fontSize: 17, fontWeight: "900" },
   row: { flexDirection: "row", gap: 12 },
   field: { flex: 1, gap: 8 },
@@ -249,7 +258,7 @@ const styles = StyleSheet.create({
   input: {
     minHeight: 48,
     paddingHorizontal: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.text,
@@ -259,7 +268,7 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 96,
     padding: 14,
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.text,
@@ -268,20 +277,21 @@ const styles = StyleSheet.create({
     textAlignVertical: "top"
   },
   chips: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  chipSelected: { borderColor: colors.maroon, backgroundColor: colors.elevated },
+  chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  chipSelected: { borderColor: colors.primary, backgroundColor: colors.primary },
   chipText: { color: colors.muted, fontWeight: "700" },
-  chipTextSelected: { color: colors.text },
+  chipTextSelected: { color: colors.onPrimary },
   commonsList: { gap: 10 },
-  commonRow: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  commonRowSelected: { borderColor: colors.maroon, backgroundColor: colors.elevated },
+  commonRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  commonRowSelected: { borderColor: colors.primary, backgroundColor: colors.surfaceWarm },
   commonDot: { width: 9, height: 9, borderRadius: 9 },
   commonName: { color: colors.muted, fontSize: 15, fontWeight: "800" },
   commonNameSelected: { color: colors.text },
-  targets: { color: colors.amber, fontWeight: "800" },
-  primaryButton: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: colors.maroon },
-  primaryText: { color: colors.text, fontWeight: "800", fontSize: 16 },
-  secondaryButton: { minHeight: 50, alignItems: "center", justifyContent: "center", borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryText: { color: colors.text, fontWeight: "800" },
-  version: { color: colors.quiet, textAlign: "center", marginTop: 8 }
+  targetCard: { gap: 4, paddingHorizontal: 4 },
+  targets: { color: colors.primary, fontWeight: "900" },
+  primaryButton: { minHeight: 54, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.primary, ...shadows.soft },
+  primaryText: { color: colors.onPrimary, fontWeight: "900", fontSize: 16 },
+  accountCard: { ...shadows.soft, gap: 14, padding: 16, borderRadius: 22, backgroundColor: colors.surface },
+  secondaryButton: { minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.surfaceWarm },
+  secondaryText: { color: colors.primary, fontWeight: "900" }
 });

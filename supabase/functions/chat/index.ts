@@ -64,6 +64,9 @@ function buildChatPrompt(
 Use the student's profile and today's dining hall menus. This chat is not aware of any generated meal plan.
 Answer questions about menu items, nutrition, meal suggestions, and general nutrition advice.
 When recommending menu items, include the dining commons name. If an item is not on today's menu, say so.
+Keep answers short and scannable. Default to one direct recommendation plus up to two alternates.
+Use 60 words or fewer unless the student explicitly asks for detail.
+Do not add intro text, filler, or generic nutrition disclaimers.
 
 STUDENT PROFILE
 ${formatProfileForPrompt(profile)}
@@ -148,7 +151,7 @@ Deno.serve(async (req) => {
       response_mime_type: "application/json",
       responseJsonSchema: CHAT_RESPONSE_SCHEMA,
       temperature: 0.3,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 512,
     });
     const parsed = parseGeminiJson<ChatResponse>(raw);
 

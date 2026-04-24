@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import OnboardingProgress from "../../components/OnboardingProgress";
 import { cmToInches, inchesToCm, kgToPounds, poundsToKg } from "../../lib/tdee";
 import { useProfile } from "../../contexts/ProfileContext";
-import { colors } from "../../theme";
+import { colors, shadows } from "../../theme";
 import type { BodyStatsProps, Gender } from "../../types";
 
 const GENDERS: { label: string; value: Gender }[] = [
@@ -49,7 +49,6 @@ export default function BodyStatsScreen({ navigation }: BodyStatsProps) {
 
         <View style={styles.section}>
           <Text style={styles.title}>Set your baseline.</Text>
-          <Text style={styles.subtitle}>A few numbers help tune recommendations. This is setup, not food tracking.</Text>
 
           <View style={styles.row}>
             <Field label="Feet" value={feet} onChangeText={setFeet} keyboardType="number-pad" />
@@ -121,17 +120,16 @@ const styles = StyleSheet.create({
     gap: 22
   },
   section: {
-    gap: 16
+    ...shadows.card,
+    gap: 16,
+    padding: 18,
+    borderRadius: 24,
+    backgroundColor: colors.surface
   },
   title: {
     color: colors.text,
     fontSize: 26,
-    fontWeight: "800"
-  },
-  subtitle: {
-    color: colors.muted,
-    fontSize: 15,
-    lineHeight: 22
+    fontWeight: "900"
   },
   row: {
     flexDirection: "row",
@@ -147,7 +145,7 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 50,
-    borderRadius: 8,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
     paddingHorizontal: 14,
@@ -164,21 +162,21 @@ const styles = StyleSheet.create({
     minHeight: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.surface
   },
   segmentActive: {
-    borderColor: colors.maroon,
-    backgroundColor: colors.elevated
+    borderColor: colors.primary,
+    backgroundColor: colors.primary
   },
   segmentText: {
     color: colors.muted,
     fontWeight: "700"
   },
   segmentTextActive: {
-    color: colors.text
+    color: colors.onPrimary
   },
   error: {
     color: colors.danger
@@ -191,12 +189,13 @@ const styles = StyleSheet.create({
     minHeight: 52,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
-    backgroundColor: colors.maroon
+    borderRadius: 999,
+    backgroundColor: colors.primary,
+    ...shadows.soft
   },
   buttonText: {
-    color: colors.text,
+    color: colors.onPrimary,
     fontSize: 16,
-    fontWeight: "800"
+    fontWeight: "900"
   }
 });

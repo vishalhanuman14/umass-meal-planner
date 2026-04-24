@@ -37,13 +37,13 @@ const styles = StyleSheet.create({
   },
   segment: {
     flex: 1,
-    height: 4,
-    borderRadius: 4
+    height: 6,
+    borderRadius: 999
   },
   active: {
-    backgroundColor: colors.maroon
+    backgroundColor: colors.primary
   },
   inactive: {
-    backgroundColor: colors.border
+    backgroundColor: colors.surfaceWarm
   }
 });

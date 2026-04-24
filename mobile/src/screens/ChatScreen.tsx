@@ -11,11 +11,12 @@ import {
   TextInput,
   View
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ChatBubble from "../components/ChatBubble";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
-import { colors } from "../theme";
+import { colors, shadows } from "../theme";
 import type { ChatMessage, ChatProps } from "../types";
 
 const ROLE_ORDER: Record<ChatMessage["role"], number> = {
@@ -24,10 +25,9 @@ const ROLE_ORDER: Record<ChatMessage["role"], number> = {
 };
 
 const suggestions = [
-  "Best high-protein dinner?",
-  "Vegetarian at Worcester?",
-  "Avoid dairy today",
-  "Quick lunch near Franklin"
+  "Best dinner at Worcester",
+  "High protein lunch",
+  "Vegetarian options"
 ];
 
 function sortMessages(messages: ChatMessage[]) {
@@ -39,6 +39,7 @@ function sortMessages(messages: ChatMessage[]) {
 }
 
 export default function ChatScreen({ navigation }: ChatProps) {
+  const insets = useSafeAreaInsets();
   const { session } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -60,13 +61,13 @@ export default function ChatScreen({ navigation }: ChatProps) {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <Pressable onPress={clearChat}>
+      headerRight: () => messages.length ? (
+        <Pressable onPress={confirmClearChat}>
           <Text style={styles.headerAction}>Clear</Text>
         </Pressable>
-      )
+      ) : null
     });
-  });
+  }, [messages.length, navigation]);
 
   useEffect(() => {
     setLoading(true);
@@ -83,6 +84,13 @@ export default function ChatScreen({ navigation }: ChatProps) {
       return;
     }
     setMessages([]);
+  }
+
+  function confirmClearChat() {
+    Alert.alert("Clear chat?", "This removes your saved chat history.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Clear", style: "destructive", onPress: clearChat }
+    ]);
   }
 
   async function sendMessage(nextText?: string) {
@@ -130,24 +138,21 @@ export default function ChatScreen({ navigation }: ChatProps) {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined} keyboardVerticalOffset={88}>
-      <View style={styles.topPanel}>
-        <Text style={styles.eyebrow}>Today</Text>
-        <Text style={styles.title}>Ask about today's menu</Text>
-        <View style={styles.contextStrip}>
-          <Text style={styles.contextText}>Today / All dining commons / Your preferences</Text>
+      {!loading && messages.length === 0 ? (
+        <View style={styles.topPanel}>
+          <View style={styles.suggestions}>
+            {suggestions.map((suggestion) => (
+              <Pressable key={suggestion} style={styles.suggestion} onPress={() => sendMessage(suggestion)} disabled={sending}>
+                <Text style={styles.suggestionText}>{suggestion}</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
-        <View style={styles.suggestions}>
-          {suggestions.map((suggestion) => (
-            <Pressable key={suggestion} style={styles.suggestion} onPress={() => sendMessage(suggestion)} disabled={sending}>
-              <Text style={styles.suggestionText}>{suggestion}</Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
+      ) : null}
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator color={colors.amber} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       ) : (
         <FlatList
@@ -155,11 +160,11 @@ export default function ChatScreen({ navigation }: ChatProps) {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ChatBubble message={item} />}
           contentContainerStyle={messages.length ? styles.list : styles.emptyList}
-          ListEmptyComponent={<Text style={styles.empty}>Pick a prompt or ask one specific menu question.</Text>}
+          ListEmptyComponent={<Text style={styles.empty}>Ask about today's menu.</Text>}
         />
       )}
 
-      <View style={styles.inputBar}>
+      <View style={[styles.inputBar, { paddingBottom: Math.max(insets.bottom, 14) }]}>
         <TextInput
           value={input}
           onChangeText={setInput}
@@ -168,8 +173,8 @@ export default function ChatScreen({ navigation }: ChatProps) {
           style={styles.input}
           multiline
         />
-        <Pressable style={styles.sendButton} onPress={() => sendMessage()} disabled={sending}>
-          {sending ? <ActivityIndicator color={colors.text} /> : <Text style={styles.sendText}>Send</Text>}
+        <Pressable accessibilityLabel="Send" style={styles.sendButton} onPress={() => sendMessage()} disabled={sending}>
+          {sending ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.sendText}>↑</Text>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -178,33 +183,43 @@ export default function ChatScreen({ navigation }: ChatProps) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  topPanel: { gap: 10, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 14, borderBottomWidth: 1, borderBottomColor: colors.border, backgroundColor: colors.background },
-  eyebrow: { color: colors.quiet, fontSize: 12, fontWeight: "800", textTransform: "uppercase" },
-  title: { color: colors.text, fontSize: 22, fontWeight: "900" },
-  contextStrip: { alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  contextText: { color: colors.muted, fontSize: 12, fontWeight: "700" },
+  topPanel: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 12, backgroundColor: colors.background },
   suggestions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  suggestion: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  suggestionText: { color: colors.text, fontSize: 12, fontWeight: "800" },
+  suggestion: { ...shadows.soft, paddingHorizontal: 13, paddingVertical: 10, borderRadius: 999, backgroundColor: colors.surface },
+  suggestionText: { color: colors.text, fontSize: 12, fontWeight: "900" },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   list: { padding: 16, gap: 12 },
   emptyList: { flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   empty: { color: colors.muted, textAlign: "center" },
-  headerAction: { color: colors.amber, fontWeight: "700" },
-  inputBar: { flexDirection: "row", gap: 10, padding: 12, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background },
+  headerAction: { color: colors.muted, fontWeight: "800" },
+  inputBar: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    backgroundColor: colors.background
+  },
   input: {
     flex: 1,
     maxHeight: 110,
-    minHeight: 44,
-    paddingHorizontal: 13,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border,
+    minHeight: 52,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderRadius: 26,
     color: colors.text,
     backgroundColor: colors.surface,
-    fontSize: 15
+    fontSize: 15,
+    ...shadows.soft
   },
-  sendButton: { width: 72, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: colors.maroon },
-  sendText: { color: colors.text, fontWeight: "800" }
+  sendButton: {
+    width: 58,
+    height: 52,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 999,
+    backgroundColor: colors.primary,
+    ...shadows.soft
+  },
+  sendText: { color: colors.onPrimary, fontSize: 25, fontWeight: "900", lineHeight: 27 }
 });

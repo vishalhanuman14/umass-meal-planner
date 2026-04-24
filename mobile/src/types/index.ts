@@ -15,7 +15,7 @@ export type OnboardingStackParamList = {
 };
 
 export type MainStackParamList = {
-  Home: undefined;
+  Home: { refreshPlanAt?: string } | undefined;
   Chat: undefined;
   Settings: undefined;
 };

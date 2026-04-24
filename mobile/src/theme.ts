@@ -1,25 +1,48 @@
 export const colors = {
-  background: "#0E1111",
-  backgroundAlt: "#101312",
-  surface: "#171B1A",
-  elevated: "#202624",
-  border: "#2D3431",
-  text: "#F4F1EA",
-  muted: "#A8B0AA",
-  quiet: "#77817B",
-  maroon: "#881C1C",
-  amber: "#F2C14E",
-  green: "#6FBF73",
-  blue: "#6CA6C1",
-  danger: "#FF9B9B",
-  black: "#070908"
+  background: "#FFF7F2",
+  backgroundAlt: "#FFF1E8",
+  surface: "#FFFFFF",
+  surfaceWarm: "#FFF1E8",
+  elevated: "#FFFFFF",
+  border: "#F0DDD3",
+  text: "#191919",
+  muted: "#6B625D",
+  quiet: "#9A8F87",
+  primary: "#EB1700",
+  primaryPressed: "#C91400",
+  onPrimary: "#FFFFFF",
+  success: "#1A7F37",
+  warning: "#F59E0B",
+  danger: "#D92D20",
+  black: "#191919",
+  maroon: "#EB1700",
+  amber: "#F59E0B",
+  green: "#1A7F37",
+  blue: "#2563EB"
 };
 
 export const commonColors = {
-  worcester: colors.blue,
-  franklin: colors.green,
-  hampshire: colors.amber,
-  berkshire: colors.maroon
+  worcester: "#2563EB",
+  franklin: "#16A34A",
+  hampshire: "#F59E0B",
+  berkshire: "#EB1700"
+};
+
+export const shadows = {
+  card: {
+    shadowColor: "#000000",
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3
+  },
+  soft: {
+    shadowColor: "#000000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 1
+  }
 };
 
 export const commonLabels = {

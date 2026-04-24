@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors } from "../theme";
+import { colors, shadows } from "../theme";
 import type { ChatMessage } from "../types";
 
 type ChatBubbleProps = {
@@ -13,7 +13,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <View style={[styles.wrap, isUser ? styles.userWrap : styles.assistantWrap]}>
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-        <Text style={styles.text}>{message.content}</Text>
+        <Text style={[styles.text, isUser ? styles.userText : styles.assistantText]}>{message.content}</Text>
       </View>
     </View>
   );
@@ -31,21 +31,28 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: "84%",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 8
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 22
   },
   userBubble: {
-    backgroundColor: colors.maroon
+    backgroundColor: colors.primary,
+    borderBottomRightRadius: 8
   },
   assistantBubble: {
+    ...shadows.soft,
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border
+    borderBottomLeftRadius: 8
   },
   text: {
-    color: colors.text,
     fontSize: 15,
     lineHeight: 21
+  },
+  userText: {
+    color: colors.onPrimary,
+    fontWeight: "600"
+  },
+  assistantText: {
+    color: colors.text
   }
 });

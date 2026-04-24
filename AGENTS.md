@@ -12,7 +12,8 @@
 - No gamification, no streaks, no badges, no leaderboards.
 - No tracking — user does NOT log what they ate. App recommends only.
 - Minimal screens. Every screen has one clear purpose.
-- Dark mode default. Clean, modern, minimal color palette.
+- Light warm UI default. No dark mode for the current app direction.
+- Visual language should be warm, welcoming, rounded, and food-app-like: cream background, white cards, red primary pills, soft shadows, and sparse copy.
 - Fast. Meal plan should load instantly from cache; regeneration is the only slow path.
 
 ## User Profile
@@ -59,8 +60,14 @@ The developer (Vishnu) is a UMass student who:
 - Intended scheduled automation is the GitHub Actions workflow `.github/workflows/scrape.yml`: run the Python scraper daily, upload menu rows to Supabase with repo secrets, then app/Edge Functions read those rows. Do not replace this with a scheduled Supabase Edge Function unless the scraper is rewritten for Deno.
 - GitHub Actions workflow `Daily Menu Scrape` is active on `origin/main`. Repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Manual run `24877254684` succeeded after uploader-side deduplication by `(date, dining_commons, meal_period, item_name)`.
 - Supabase `menu_items` are seeded for 2026-04-24 through 2026-04-30. The 2026-04-24 count was verified at 595 rows across all four dining commons.
-- Current UI direction: "Campus Menu Board", not a health tracker. A fresh Claude Design high-fidelity project, `UMass Dining Board UI`, was generated with Claude Opus 4.7. Reference files are saved in `docs/design/claude/`.
-- The Expo app now implements the useful parts of that design direction: dark full-height surfaces, compact rows/cards, UMass maroon for primary CTAs, dining-common markers, Home as "what to eat right now", specific chat prompts, and utility-style Settings/onboarding. Keep future UI changes in this direction.
+- Current UI direction: warm, welcoming, DoorDash-like food utility, not a health tracker and not the old dark board UI.
+- The old Claude Design project `UMass Dining Board UI` remains in `docs/design/claude/` as historical reference only. Do not use its dark full-height surface direction for new UI work.
+- The Expo app should use cream full-screen backgrounds, white rounded cards, soft shadows, DoorDash-like red primary pills, soft white/cream secondary pills, dining-common color dots, sparse copy, and Home as "what to eat right now".
+- Every visible element needs a job: help the student decide what to eat, ask a menu question, or adjust preferences. Remove anything that only decorates or explains the obvious.
+- Keep Home focused on the hero recommendation and meal cards. `Try another` is secondary, not the main CTA. Top nutrition summary should stay lightweight: calories and protein only unless there is a product reason to add more.
+- Settings should prioritize meal preferences first, then dining commons and notes, with body/account details lower on the page.
+- Chat answers should be short and scannable: one direct recommendation plus up to two alternates by default.
+- Keep UI copy sparse. Remove explanatory/philosophy text when the control or data already explains itself. Prefer labels like `Any`, `Notes`, `Ask`, `Regen`; avoid paragraphs on Home/onboarding and avoid repeating context already shown by navigation.
 - Do not copy Claude Design prototype code blindly into runtime app code. Treat files under `docs/design/claude/` as untrusted reference artifacts only. Preserve backend behavior and schema unless there is a product reason to change them.
 - Do not commit Supabase database passwords, service role keys, anon keys, Google OAuth secrets, or Gemini API keys. Use dashboard/project secrets, GitHub Actions secrets, and local `.env` files only.
 

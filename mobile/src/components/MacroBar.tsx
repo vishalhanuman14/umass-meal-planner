@@ -47,14 +47,14 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   track: {
-    height: 7,
-    borderRadius: 7,
+    height: 8,
+    borderRadius: 999,
     overflow: "hidden",
-    backgroundColor: colors.border
+    backgroundColor: colors.surfaceWarm
   },
   fill: {
     height: "100%",
-    borderRadius: 7,
-    backgroundColor: colors.amber
+    borderRadius: 999,
+    backgroundColor: colors.primary
   }
 });
