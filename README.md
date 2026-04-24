@@ -61,7 +61,7 @@ Expo React Native app   Supabase Edge Functions
 
 ## UI
 
-The UI is dark, minimal, and utility-focused. There are no custom fonts, no gamification, and no social features. The current navigation uses React Navigation native stacks.
+The UI is warm, minimal, and utility-focused. It uses a cream background, white rounded cards, sparse copy, and DoorDash-like red primary actions. There are no custom fonts, no dark mode, no gamification, and no social features. The current navigation uses React Navigation native stacks.
 
 ### Screens
 
@@ -71,14 +71,22 @@ The UI is dark, minimal, and utility-focused. There are no custom fonts, no gami
 | Body Stats | First onboarding step. Collects height, weight, age, and gender. |
 | Goals | Second onboarding step. Collects goal and activity level, then calculates calorie and macro targets. |
 | Preferences | Final onboarding step. Collects dietary restrictions, allergens, dining commons preferences, and free-text preferences. |
-| Home | Main daily plan screen. Shows date, greeting, macro summary, breakfast/lunch/dinner cards, reasoning, Chat/Settings buttons, and Regenerate. |
-| Chat | Menu-aware nutrition chat. Sends questions to the Edge Function and persists chat history. |
-| Settings | Displays and edits saved profile fields, recalculates targets when needed, and signs out. |
+| Home | Main daily plan screen. Shows today's recommendation, a lightweight calories/protein summary, meal cards, Chat/Prefs buttons, and secondary Regenerate. |
+| Food Details | Tap-open card from a meal item. Shows station, serving size, detailed nutrition, tags, allergens, carbon rating, and ingredients without cluttering Home. |
+| Chat | Menu-aware nutrition chat. Sends short questions to the Edge Function and persists chat history. |
+| Settings | Edits meal preferences first, then body/account details, recalculates targets when needed, and signs out. |
+
+### Simulator Screens
+
+Current iPhone simulator screenshots:
+
+| Home | Food Details | Chat | Settings |
+|------|--------------|------|----------|
+| <img src="docs/simulator-screens/doordash-redesign-after/home.png" alt="Home screen" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/food-detail.png" alt="Food detail card" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/chat.png" alt="Chat screen" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/settings.png" alt="Settings screen" width="180" /> |
 
 ### Main Components
 
-- `MealCard`: renders one meal period, dining commons, selected items, servings, calories, and macros.
-- `MacroBar`: shows actual versus target macro progress.
+- `MealCard`: renders one meal period with only the essentials visible; tapping an item opens the detail card.
 - `ChatBubble`: renders user and assistant messages.
 - `OnboardingProgress`: shows progress across the three onboarding screens.
 
@@ -88,7 +96,7 @@ Supabase owns authentication, database storage, row-level security, and Edge Fun
 
 Core tables:
 
-- `menu_items`: daily scraped menu items and nutrition data.
+- `menu_items`: daily scraped menu items, station, nutrition data, dietary tags, allergens, ingredients, carbon rating, and dining metadata.
 - `profiles`: user onboarding profile and targets.
 - `meal_plans`: cached daily Gemini-generated plans.
 - `chat_messages`: persisted chat history.

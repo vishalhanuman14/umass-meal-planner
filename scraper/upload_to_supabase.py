@@ -59,15 +59,22 @@ def flatten_menu_payload(menu: dict[str, Any]) -> list[dict[str, Any]]:
                             "item_name": item_name,
                             "serving_size": item.get("serving_size") or "1 serving",
                             "calories": int(item.get("calories") or 0),
+                            "calories_from_fat": int(item.get("calories_from_fat") or 0),
                             "protein_g": float(item.get("protein_g") or 0),
                             "fat_g": float(item.get("fat_g") or 0),
+                            "saturated_fat_g": float(item.get("saturated_fat_g") or 0),
+                            "trans_fat_g": float(item.get("trans_fat_g") or 0),
                             "carbs_g": float(item.get("carbs_g") or 0),
                             "fiber_g": float(item.get("fiber_g") or 0),
+                            "sugars_g": float(item.get("sugars_g") or 0),
                             "sodium_mg": int(item.get("sodium_mg") or 0),
+                            "cholesterol_mg": float(item.get("cholesterol_mg") or 0),
+                            "healthfulness": int(item.get("healthfulness") or 0),
                             "dietary_tags": item.get("dietary_tags") or [],
                             "allergens": item.get("allergens") or "",
                             "ingredient_list": item.get("ingredient_list") or "",
                             "carbon_rating": item.get("carbon_rating") or "",
+                            "recipe_webcode": item.get("recipe_webcode") or "",
                         }
                         key = (row["date"], row["dining_commons"], row["meal_period"], row["item_name"])
                         if key in rows_by_key:

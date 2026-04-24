@@ -11,15 +11,22 @@ export type MenuItem = {
   item_name: string;
   serving_size: string;
   calories: number;
+  calories_from_fat: number;
   protein_g: number;
   fat_g: number;
+  saturated_fat_g: number;
+  trans_fat_g: number;
   carbs_g: number;
   fiber_g: number;
+  sugars_g: number;
   sodium_mg: number;
+  cholesterol_mg: number;
+  healthfulness: number;
   dietary_tags: string[];
   allergens: string;
   ingredient_list: string;
   carbon_rating: string;
+  recipe_webcode: string;
 };
 
 const MENU_SELECT = `
@@ -31,15 +38,22 @@ const MENU_SELECT = `
   item_name,
   serving_size,
   calories,
+  calories_from_fat,
   protein_g,
   fat_g,
+  saturated_fat_g,
+  trans_fat_g,
   carbs_g,
   fiber_g,
+  sugars_g,
   sodium_mg,
+  cholesterol_mg,
+  healthfulness,
   dietary_tags,
   allergens,
   ingredient_list,
-  carbon_rating
+  carbon_rating,
+  recipe_webcode
 `;
 
 const VALID_COMMONS = new Set(["worcester", "franklin", "hampshire", "berkshire"]);
@@ -49,6 +63,13 @@ const COMMONS_LABELS: Record<string, string> = {
   franklin: "Franklin",
   hampshire: "Hampshire",
   berkshire: "Berkshire",
+};
+
+const COMMONS_CONTEXT: Record<string, string> = {
+  worcester: "Worcester: regular dining hours Monday-Sunday 7 AM-midnight; Grab'n Go Monday-Friday 7 AM-8 PM.",
+  franklin: "Franklin: regular dining hours Monday-Sunday 7 AM-9 PM; Grab'n Go Monday-Friday 10 AM-4 PM; Kosher dining Monday-Friday 7 AM-7 PM and Sunday 11:30 AM-7 PM.",
+  hampshire: "Hampshire: regular dining hours Monday-Sunday 7 AM-9 PM; Grab'n Go Monday-Friday 7 AM-noon.",
+  berkshire: "Berkshire: regular dining hours Monday-Sunday 11 AM-midnight; Grab'n Go Monday-Friday 7 AM-8 PM.",
 };
 
 export function todayInEasternTime(): string {
@@ -119,6 +140,18 @@ function tagsText(tags: string[] | null | undefined): string {
   return tags.join(", ");
 }
 
+function diningCommonsContext(commons: string[]): string {
+  const lines = commons
+    .map((value) => COMMONS_CONTEXT[value])
+    .filter((value): value is string => Boolean(value));
+
+  if (lines.length === 0) {
+    return "";
+  }
+
+  return ["DINING COMMONS CONTEXT", ...lines, ""].join("\n");
+}
+
 function periodLabel(period: string): string {
   return period.replace(/_/g, " ").toUpperCase();
 }
@@ -133,6 +166,10 @@ export function formatMenuForPrompt(
 
   const lines: string[] = [];
   const commons = [...new Set(items.map((item) => item.dining_commons))];
+  const context = diningCommonsContext(commons);
+  if (context) {
+    lines.push(context);
+  }
 
   for (const diningCommons of commons) {
     lines.push(`=== ${COMMONS_LABELS[diningCommons] ?? diningCommons} ===`);
@@ -148,9 +185,11 @@ export function formatMenuForPrompt(
         const ingredients = options.includeIngredients && item.ingredient_list
           ? ` | ingredients: ${truncate(item.ingredient_list.trim(), 180)}`
           : "";
+        const carbon = item.carbon_rating ? ` | carbon: ${item.carbon_rating}` : "";
+        const health = item.healthfulness ? ` | healthfulness: ${item.healthfulness}/100` : "";
 
         lines.push(
-          `- ${item.item_name} | ${item.calories} cal | ${item.protein_g}g P | ${item.fat_g}g F | ${item.carbs_g}g C | serving: ${item.serving_size} | tags: ${tagsText(item.dietary_tags)} | allergens: ${allergens}${ingredients}`,
+          `- ${item.item_name} | station: ${item.station} | ${item.calories} cal | ${item.protein_g}g P | ${item.fat_g}g F | ${item.carbs_g}g C | fiber: ${item.fiber_g}g | sugar: ${item.sugars_g}g | sodium: ${item.sodium_mg}mg | serving: ${item.serving_size} | tags: ${tagsText(item.dietary_tags)} | allergens: ${allergens}${carbon}${health}${ingredients}`,
         );
       }
     }

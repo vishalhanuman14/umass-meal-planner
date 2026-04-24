@@ -8,7 +8,7 @@ import {
   requirePost,
 } from "../_shared/supabase.ts";
 import { GEMINI_FLASH_MODEL, generateGeminiText, parseGeminiJson } from "../_shared/gemini.ts";
-import { fetchMenuItems, formatMenuForPrompt, normalizeDiningCommons, todayInEasternTime } from "../_shared/menu.ts";
+import { fetchMenuItems, formatMenuForPrompt, normalizeDiningCommons, todayInEasternTime, type MenuItem } from "../_shared/menu.ts";
 import { fetchProfile, formatProfileForPrompt, type Profile } from "../_shared/profile.ts";
 
 type GenerateRequestBody = {
@@ -17,9 +17,37 @@ type GenerateRequestBody = {
 };
 
 type MealPlan = {
-  meals?: Record<string, unknown>;
+  meals?: Record<string, MealPlanMeal>;
   daily_total?: Record<string, unknown>;
   reasoning?: string;
+};
+
+type MealPlanItem = {
+  item?: unknown;
+  servings?: unknown;
+  calories?: unknown;
+  protein_g?: unknown;
+  fat_g?: unknown;
+  carbs_g?: unknown;
+  station?: unknown;
+  serving_size?: unknown;
+  fiber_g?: unknown;
+  sodium_mg?: unknown;
+  sugars_g?: unknown;
+  saturated_fat_g?: unknown;
+  trans_fat_g?: unknown;
+  cholesterol_mg?: unknown;
+  healthfulness?: unknown;
+  dietary_tags?: unknown;
+  allergens?: unknown;
+  ingredient_list?: unknown;
+  carbon_rating?: unknown;
+};
+
+type MealPlanMeal = {
+  dining_commons?: unknown;
+  items?: MealPlanItem[];
+  meal_total?: Record<string, unknown>;
 };
 
 const MACRO_TOTALS_SCHEMA = {
@@ -43,8 +71,9 @@ const MEAL_ITEM_SCHEMA = {
     protein_g: { type: "number" },
     fat_g: { type: "number" },
     carbs_g: { type: "number" },
+    station: { type: "string" },
   },
-  required: ["item", "servings", "calories", "protein_g", "fat_g", "carbs_g"],
+  required: ["item", "servings", "calories", "protein_g", "fat_g", "carbs_g", "station"],
   additionalProperties: false,
 };
 
@@ -101,6 +130,7 @@ Build one full-day meal plan using only exact items from today's menu.
 - Meet calorie and macro targets as closely as possible.
 - Prefer the user's preferred dining commons if set.
 - Different meals may use different dining commons.
+- For each item, include its exact station from the menu.
 - Choose 3 to 6 items per meal.
 - Servings must be positive integers.
 - Do not include alternatives or list unused menu items.
@@ -112,7 +142,7 @@ Respond only with JSON in this shape:
     "breakfast": {
       "dining_commons": "name",
       "items": [
-        {"item": "exact name", "servings": 1, "calories": 0, "protein_g": 0, "fat_g": 0, "carbs_g": 0}
+        {"item": "exact name", "station": "exact station", "servings": 1, "calories": 0, "protein_g": 0, "fat_g": 0, "carbs_g": 0}
       ],
       "meal_total": {"calories": 0, "protein_g": 0, "fat_g": 0, "carbs_g": 0}
     },
@@ -130,6 +160,80 @@ Respond only with JSON in this shape:
   "daily_total": {"calories": 0, "protein_g": 0, "fat_g": 0, "carbs_g": 0},
   "reasoning": "brief explanation"
 }`;
+}
+
+function normalized(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function sameCommons(source: string, planned: string): boolean {
+  if (!planned) return true;
+  return source === planned || source.includes(planned) || planned.includes(source);
+}
+
+function findSourceItem(
+  menuItems: MenuItem[],
+  period: string,
+  diningCommons: unknown,
+  plannedItem: MealPlanItem,
+): MenuItem | null {
+  const itemName = normalized(plannedItem.item);
+  const station = normalized(plannedItem.station);
+  const commons = normalized(diningCommons);
+  const exactPeriod = normalized(period);
+
+  const candidates = menuItems.filter((item) =>
+    normalized(item.item_name) === itemName &&
+    sameCommons(normalized(item.dining_commons), commons) &&
+    normalized(item.meal_period) === exactPeriod
+  );
+
+  if (station) {
+    const stationMatch = candidates.find((item) => normalized(item.station) === station);
+    if (stationMatch) return stationMatch;
+  }
+
+  return candidates[0] ?? menuItems.find((item) =>
+    normalized(item.item_name) === itemName &&
+    sameCommons(normalized(item.dining_commons), commons)
+  ) ?? null;
+}
+
+function scaled(value: number, servings: unknown): number {
+  const count = typeof servings === "number" && Number.isFinite(servings) ? servings : 1;
+  return Math.round(value * count * 10) / 10;
+}
+
+function enrichMealPlan(plan: MealPlan, menuItems: MenuItem[]): MealPlan {
+  if (!plan.meals) return plan;
+
+  for (const [period, meal] of Object.entries(plan.meals)) {
+    if (!Array.isArray(meal.items)) continue;
+
+    meal.items = meal.items.map((item) => {
+      const source = findSourceItem(menuItems, period, meal.dining_commons, item);
+      if (!source) return item;
+
+      return {
+        ...item,
+        station: source.station,
+        serving_size: source.serving_size,
+        fiber_g: scaled(source.fiber_g, item.servings),
+        sodium_mg: Math.round(scaled(source.sodium_mg, item.servings)),
+        sugars_g: scaled(source.sugars_g, item.servings),
+        saturated_fat_g: scaled(source.saturated_fat_g, item.servings),
+        trans_fat_g: scaled(source.trans_fat_g, item.servings),
+        cholesterol_mg: scaled(source.cholesterol_mg, item.servings),
+        healthfulness: source.healthfulness,
+        dietary_tags: source.dietary_tags ?? [],
+        allergens: source.allergens ?? "",
+        ingredient_list: source.ingredient_list ?? "",
+        carbon_rating: source.carbon_rating ?? "",
+      };
+    });
+  }
+
+  return plan;
 }
 
 function validateMealPlan(plan: MealPlan): void {
@@ -212,7 +316,7 @@ Deno.serve(async (req) => {
       maxOutputTokens: 8192,
     });
 
-    const plan = parseGeminiJson<MealPlan>(raw);
+    const plan = enrichMealPlan(parseGeminiJson<MealPlan>(raw), menuItems);
     validateMealPlan(plan);
 
     const generatedAt = new Date().toISOString();

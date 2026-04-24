@@ -6,7 +6,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 
 ### Now
 
-1. Commit and push the verified warm UI redesign changes.
+1. Commit and push the verified enriched menu/detail-card/settings-save changes.
 2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
@@ -18,6 +18,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 - Primary actions use red pills.
 - Secondary actions use soft white/cream pills.
 - Dining commons should be soft colored markers, not neon rails.
+- Additional nutrition belongs behind item tap details, not on the visible meal cards.
 
 ### Later
 
@@ -693,3 +694,11 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Settings save now navigates back to Home with a refresh marker so the main recommendation regenerates from the updated preferences instead of showing a stale cached plan.
 - `npm run typecheck` and `git diff --check` passed after the warm UI cleanup.
 - The `chat` Supabase Edge Function was redeployed with a shorter response prompt: one direct recommendation plus up to two alternates by default, 60 words or fewer unless the student asks for detail.
+- Enriched scraper parsing now captures additional UMass Dining fields: calories from fat, saturated fat, trans fat, sugars, cholesterol, healthfulness, and recipe webcode.
+- Supabase migration `002_enrich_menu_items.sql` was applied to add those fields to `menu_items`.
+- `generate-meal-plan` and `chat` Edge Functions were redeployed after the shared menu formatter started selecting the enriched fields and including station, fiber, sugar, sodium, carbon rating, healthfulness, and dining-hours context in prompts.
+- Home meal cards were simplified further: visible item rows now show only food name plus calories/protein, and the previous fat/carbs meal-total footer was removed.
+- Tapping a meal item opens a food detail card that fetches the current menu row from Supabase and shows station, serving size, useful detailed nutrition, tags, allergens, carbon rating, and ingredients without cluttering the main card.
+- Settings save moved to a compact red top-right navigation action; the large in-body Save button was removed.
+- README now includes the current simulator screenshots for Home, Food Details, Chat, and Settings.
+- Simulator check passed for the minimal meal cards, tap-open food detail card, and Settings top-right Save placement on iPhone 17 Pro / iOS 26.2.

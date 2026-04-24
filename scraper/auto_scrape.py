@@ -105,15 +105,22 @@ class _ItemHTMLParser(HTMLParser):
                 "name": name,
                 "serving_size": (data.get("data-serving-size") or "1 serving").strip(),
                 "calories": int(num("data-calories")),
+                "calories_from_fat": int(num("data-calories-from-fat")),
                 "protein_g": round(num("data-protein"), 1),
                 "fat_g": round(num("data-total-fat"), 1),
+                "saturated_fat_g": round(num("data-sat-fat"), 1),
+                "trans_fat_g": round(num("data-trans-fat"), 1),
                 "carbs_g": round(num("data-total-carb"), 1),
                 "fiber_g": round(num("data-dietary-fiber"), 1),
+                "sugars_g": round(num("data-sugars"), 1),
                 "sodium_mg": int(num("data-sodium")),
+                "cholesterol_mg": round(num("data-cholesterol"), 1),
+                "healthfulness": int(num("data-healthfulness")),
                 "dietary_tags": tags,
                 "allergens": (data.get("data-allergens") or "").strip(),
                 "ingredient_list": (data.get("data-ingredient-list") or "").strip(),
                 "carbon_rating": (data.get("data-carbon-list") or "").strip(),
+                "recipe_webcode": (data.get("data-recipe-webcode") or "").strip(),
             }
         )
 

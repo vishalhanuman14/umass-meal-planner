@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
 import { useAuth } from "../contexts/AuthContext";
@@ -61,7 +61,8 @@ export default function SettingsScreen({ navigation }: SettingsProps) {
     });
   }, [activity, age, feet, gender, goal, inches, weightLb]);
 
-  async function save() {
+  const save = useCallback(async () => {
+    if (saving) return;
     if (!recalculated) {
       Alert.alert("Missing info", "Height, weight, and age are required.");
       return;
@@ -88,7 +89,37 @@ export default function SettingsScreen({ navigation }: SettingsProps) {
     } finally {
       setSaving(false);
     }
-  }
+  }, [
+    activity,
+    additional,
+    age,
+    allergens,
+    dietary,
+    feet,
+    gender,
+    goal,
+    inches,
+    navigation,
+    preferred,
+    recalculated,
+    saveProfile,
+    saving,
+    weightLb
+  ]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          style={[styles.headerSaveButton, saving && styles.headerSaveButtonDisabled]}
+          onPress={save}
+          disabled={saving}
+        >
+          {saving ? <ActivityIndicator color={colors.onPrimary} size="small" /> : <Text style={styles.headerSaveText}>Save</Text>}
+        </Pressable>
+      )
+    });
+  }, [navigation, save, saving]);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -131,10 +162,6 @@ export default function SettingsScreen({ navigation }: SettingsProps) {
           </Text>
         </View>
       ) : null}
-
-      <Pressable style={styles.primaryButton} onPress={save} disabled={saving}>
-        {saving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.primaryText}>Save</Text>}
-      </Pressable>
 
       <View style={styles.accountCard}>
         <View>
@@ -247,6 +274,16 @@ function DiningCommonsGroup({ selected, onChange }: { selected: string[]; onChan
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, paddingBottom: 28, gap: 16 },
+  headerSaveButton: {
+    minWidth: 68,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 999,
+    backgroundColor: colors.primary
+  },
+  headerSaveButtonDisabled: { opacity: 0.72 },
+  headerSaveText: { color: colors.onPrimary, fontSize: 15, fontWeight: "900" },
   kicker: { color: colors.primary, fontSize: 12, fontWeight: "900", textTransform: "uppercase" },
   email: { color: colors.muted, fontSize: 14, marginTop: 4 },
   name: { color: colors.text, fontSize: 18, fontWeight: "900", marginTop: 6 },
@@ -289,8 +326,6 @@ const styles = StyleSheet.create({
   commonNameSelected: { color: colors.text },
   targetCard: { gap: 4, paddingHorizontal: 4 },
   targets: { color: colors.primary, fontWeight: "900" },
-  primaryButton: { minHeight: 54, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.primary, ...shadows.soft },
-  primaryText: { color: colors.onPrimary, fontWeight: "900", fontSize: 16 },
   accountCard: { ...shadows.soft, gap: 14, padding: 16, borderRadius: 22, backgroundColor: colors.surface },
   secondaryButton: { minHeight: 48, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.surfaceWarm },
   secondaryText: { color: colors.primary, fontWeight: "900" }

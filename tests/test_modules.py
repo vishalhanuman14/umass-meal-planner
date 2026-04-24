@@ -67,9 +67,19 @@ class TestParseMenu(unittest.TestCase):
             "name": "Rice Bowl",
             "allergens": "soy",
             "ingredient_list": "Rice, soy sauce",
+            "sugars_g": "4.2g",
+            "saturated_fat_g": "1.1g",
+            "cholesterol_mg": "5mg",
+            "healthfulness": "60",
+            "recipe_webcode": "H VGN CR1",
         })
         self.assertEqual(item["allergens"], "soy")
         self.assertEqual(item["ingredient_list"], "Rice, soy sauce")
+        self.assertEqual(item["sugars_g"], 4.2)
+        self.assertEqual(item["saturated_fat_g"], 1.1)
+        self.assertEqual(item["cholesterol_mg"], 5.0)
+        self.assertEqual(item["healthfulness"], 60)
+        self.assertEqual(item["recipe_webcode"], "H VGN CR1")
 
     def test_supabase_payload_deduplicates_conflict_keys_only(self):
         from scraper.upload_to_supabase import flatten_menu_payload
@@ -82,8 +92,8 @@ class TestParseMenu(unittest.TestCase):
                         "franklin": {
                             "meals": {
                                 "lunch": {
-                                    "Station A": [{"name": "White Rice", "calories": 100}],
-                                    "Station B": [{"name": "White Rice", "calories": 100}],
+                                    "Station A": [{"name": "White Rice", "calories": 100, "sugars_g": 1.5}],
+                                    "Station B": [{"name": "White Rice", "calories": 100, "sugars_g": 1.5}],
                                 },
                                 "dinner": {
                                     "Station A": [{"name": "White Rice", "calories": 100}],
@@ -99,6 +109,8 @@ class TestParseMenu(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         lunch = next(row for row in rows if row["meal_period"] == "lunch")
         self.assertEqual(lunch["station"], "Station A / Station B")
+        self.assertEqual(lunch["sugars_g"], 1.5)
+        self.assertIn("healthfulness", lunch)
 
     def test_validate_menu_no_meals(self):
         from scraper.parse_menu import validate_menu

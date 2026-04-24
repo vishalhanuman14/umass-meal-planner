@@ -65,6 +65,7 @@ The developer (Vishnu) is a UMass student who:
 - The Expo app should use cream full-screen backgrounds, white rounded cards, soft shadows, DoorDash-like red primary pills, soft white/cream secondary pills, dining-common color dots, sparse copy, and Home as "what to eat right now".
 - Every visible element needs a job: help the student decide what to eat, ask a menu question, or adjust preferences. Remove anything that only decorates or explains the obvious.
 - Keep Home focused on the hero recommendation and meal cards. `Try another` is secondary, not the main CTA. Top nutrition summary should stay lightweight: calories and protein only unless there is a product reason to add more.
+- Keep meal item rows uncluttered. Show only the food name and essential calories/protein on the card; put station, serving size, extra nutrition, allergens, ingredients, carbon rating, and healthfulness inside a tap-open food detail card.
 - Settings should prioritize meal preferences first, then dining commons and notes, with body/account details lower on the page.
 - Chat answers should be short and scannable: one direct recommendation plus up to two alternates by default.
 - Keep UI copy sparse. Remove explanatory/philosophy text when the control or data already explains itself. Prefer labels like `Any`, `Notes`, `Ask`, `Regen`; avoid paragraphs on Home/onboarding and avoid repeating context already shown by navigation.
