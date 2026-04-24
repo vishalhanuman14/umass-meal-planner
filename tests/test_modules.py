@@ -51,6 +51,26 @@ class TestParseMenu(unittest.TestCase):
         all_names = [i["name"] for items in [lunch_items, dinner_items] for i in items]
         self.assertEqual(all_names.count("Chicken"), 1)
 
+    def test_normalize_menu_can_keep_duplicate_period_items(self):
+        from scraper.parse_menu import normalize_menu
+        raw = {
+            "lunch": {"Grill": [{"name": "Chicken", "calories": 200, "protein_g": 25}]},
+            "dinner": {"Grill": [{"name": "Chicken", "calories": 200, "protein_g": 25}]},
+        }
+        result = normalize_menu(raw, deduplicate=False)
+        self.assertEqual(len(result.get("lunch", {}).get("Grill", [])), 1)
+        self.assertEqual(len(result.get("dinner", {}).get("Grill", [])), 1)
+
+    def test_normalize_item_keeps_allergens_and_ingredients(self):
+        from scraper.parse_menu import normalize_item
+        item = normalize_item({
+            "name": "Rice Bowl",
+            "allergens": "soy",
+            "ingredient_list": "Rice, soy sauce",
+        })
+        self.assertEqual(item["allergens"], "soy")
+        self.assertEqual(item["ingredient_list"], "Rice, soy sauce")
+
     def test_validate_menu_no_meals(self):
         from scraper.parse_menu import validate_menu
         warnings = validate_menu({"meals": {}})

@@ -46,6 +46,8 @@ def normalize_item(raw: dict[str, Any]) -> dict[str, Any]:
         dietary_tags = [t.strip() for t in dietary_tags.split(",") if t.strip()]
 
     carbon_rating = raw.get("carbon_rating") or raw.get("carbon") or ""
+    allergens = str(raw.get("allergens") or "").strip()
+    ingredient_list = str(raw.get("ingredient_list") or raw.get("ingredients") or "").strip()
 
     nutrition_incomplete = (
         calories == 0 and protein_g == 0.0
@@ -61,6 +63,8 @@ def normalize_item(raw: dict[str, Any]) -> dict[str, Any]:
         "fiber_g": round(fiber_g, 1),
         "sodium_mg": sodium_mg,
         "dietary_tags": dietary_tags,
+        "allergens": allergens,
+        "ingredient_list": ingredient_list,
         "carbon_rating": carbon_rating,
     }
     if nutrition_incomplete:
@@ -70,7 +74,7 @@ def normalize_item(raw: dict[str, Any]) -> dict[str, Any]:
     return item
 
 
-def normalize_menu(raw_meals: dict[str, Any]) -> dict[str, Any]:
+def normalize_menu(raw_meals: dict[str, Any], deduplicate: bool = True) -> dict[str, Any]:
     """
     Normalize raw meals dict into the standard meals schema.
 
@@ -90,11 +94,12 @@ def normalize_menu(raw_meals: dict[str, Any]) -> dict[str, Any]:
                 item = normalize_item(raw_item)
                 if item is None:
                     continue
-                # Deduplicate across periods (keep first occurrence)
-                if item["name"] in seen_names:
-                    logger.debug("Deduplicating '%s' in period '%s'.", item["name"], period_key)
-                    continue
-                seen_names.add(item["name"])
+                if deduplicate:
+                    # Legacy weekly planner behavior: keep the first occurrence.
+                    if item["name"] in seen_names:
+                        logger.debug("Deduplicating '%s' in period '%s'.", item["name"], period_key)
+                        continue
+                    seen_names.add(item["name"])
                 norm_items.append(item)
             if norm_items:
                 normalized[period_key][category] = norm_items
