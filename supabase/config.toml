@@ -153,7 +153,7 @@ enabled = true
 # in emails.
 site_url = "https://thaoylgvgsvbouyirdfg.supabase.co"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["umassnutrition://auth/callback"]
+additional_redirect_urls = ["umassnutrition://auth/callback", "http://localhost:3000/auth/callback"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # JWT issuer URL. If not set, defaults to the local API URL (http://127.0.0.1:<port>/auth/v1).
@@ -314,7 +314,7 @@ max_frequency = "5s"
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
 [auth.external.google]
 enabled = true
-client_id = "env(GOOGLE_CLIENT_ID)"
+client_id = "798688763110-stv9oqkdrmkukg9m7qsqosi086pluc5p.apps.googleusercontent.com"
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
 secret = "env(GOOGLE_CLIENT_SECRET)"
 # Uses the hosted Supabase callback URL by default:

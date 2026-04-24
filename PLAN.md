@@ -703,3 +703,4 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Simulator check passed for the minimal meal cards, tap-open food detail card, and Settings top-right Save placement on iPhone 17 Pro / iOS 26.2.
 - Commit `eb21bb1` pushed the enriched menu/detail-card/settings-save changes to `origin/main`.
 - Manual GitHub Actions run `24903108886` for `Daily Menu Scrape` succeeded after the push. Supabase `menu_items` for 2026-04-24 were verified at 598 rows, including enriched values: 486 rows with sugar, 501 with saturated fat, 284 with cholesterol, 530 with healthfulness, and 592 with recipe webcode.
+- Supabase auth redirect allow-list now includes `http://localhost:3000/auth/callback` in addition to `umassnutrition://auth/callback`. Smoke tests returned Google OAuth `302` redirects for both callback URLs with the real Google client id.
