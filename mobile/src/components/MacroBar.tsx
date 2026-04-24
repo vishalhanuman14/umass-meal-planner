@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { colors } from "../theme";
+
 type MacroBarProps = {
   label: string;
   value: number;
@@ -36,11 +38,11 @@ const styles = StyleSheet.create({
     gap: 16
   },
   label: {
-    color: "#aeb8c6",
+    color: colors.muted,
     fontSize: 13
   },
   value: {
-    color: "#f4f7fb",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "600"
   },
@@ -48,11 +50,11 @@ const styles = StyleSheet.create({
     height: 7,
     borderRadius: 7,
     overflow: "hidden",
-    backgroundColor: "#243041"
+    backgroundColor: colors.border
   },
   fill: {
     height: "100%",
     borderRadius: 7,
-    backgroundColor: "#8bd3ff"
+    backgroundColor: colors.amber
   }
 });

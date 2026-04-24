@@ -1,4 +1,6 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
+import { colors } from "../theme";
 
 type OnboardingProgressProps = {
   step: number;
@@ -7,15 +9,28 @@ type OnboardingProgressProps = {
 
 export default function OnboardingProgress({ step, total }: OnboardingProgressProps) {
   return (
-    <View style={styles.row}>
-      {Array.from({ length: total }).map((_, index) => (
-        <View key={index} style={[styles.segment, index < step ? styles.active : styles.inactive]} />
-      ))}
+    <View style={styles.wrap}>
+      <Text style={styles.label}>Step {step} of {total}</Text>
+      <View style={styles.row}>
+        {Array.from({ length: total }).map((_, index) => (
+          <View key={index} style={[styles.segment, index < step ? styles.active : styles.inactive]} />
+        ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: {
+    gap: 8
+  },
+  label: {
+    color: colors.quiet,
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
   row: {
     flexDirection: "row",
     gap: 8
@@ -26,9 +41,9 @@ const styles = StyleSheet.create({
     borderRadius: 4
   },
   active: {
-    backgroundColor: "#8bd3ff"
+    backgroundColor: colors.maroon
   },
   inactive: {
-    backgroundColor: "#243041"
+    backgroundColor: colors.border
   }
 });

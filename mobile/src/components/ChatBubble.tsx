@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { colors } from "../theme";
 import type { ChatMessage } from "../types";
 
 type ChatBubbleProps = {
@@ -35,15 +36,15 @@ const styles = StyleSheet.create({
     borderRadius: 8
   },
   userBubble: {
-    backgroundColor: "#1c5d7a"
+    backgroundColor: colors.maroon
   },
   assistantBubble: {
-    backgroundColor: "#111821",
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#243041"
+    borderColor: colors.border
   },
   text: {
-    color: "#f4f7fb",
+    color: colors.text,
     fontSize: 15,
     lineHeight: 21
   }

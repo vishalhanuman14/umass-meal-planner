@@ -12,6 +12,7 @@ import PreferencesScreen from "./src/screens/onboarding/PreferencesScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ChatScreen from "./src/screens/ChatScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
+import { colors } from "./src/theme";
 import type {
   AuthStackParamList,
   MainStackParamList,
@@ -26,11 +27,11 @@ const theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: "#0b0f14",
-    card: "#111821",
-    primary: "#8bd3ff",
-    text: "#f4f7fb",
-    border: "#243041"
+    background: colors.background,
+    card: colors.surface,
+    primary: colors.amber,
+    text: colors.text,
+    border: colors.border
   }
 };
 
@@ -46,9 +47,10 @@ function OnboardingNavigator() {
   return (
     <OnboardingStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#0b0f14" },
-        headerTintColor: "#f4f7fb",
-        contentStyle: { backgroundColor: "#0b0f14" }
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.background }
       }}
     >
       <OnboardingStack.Screen name="BodyStats" component={BodyStatsScreen} options={{ title: "Profile" }} />
@@ -62,9 +64,10 @@ function MainNavigator() {
   return (
     <MainStack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#0b0f14" },
-        headerTintColor: "#f4f7fb",
-        contentStyle: { backgroundColor: "#0b0f14" }
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        contentStyle: { backgroundColor: colors.background }
       }}
     >
       <MainStack.Screen name="Home" component={HomeScreen} options={{ title: "Today" }} />
@@ -81,7 +84,7 @@ function RootNavigator() {
   if (authLoading || (session && profileLoading)) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator color="#8bd3ff" />
+        <ActivityIndicator color={colors.amber} />
       </View>
     );
   }
@@ -115,6 +118,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0b0f14"
+    backgroundColor: colors.background
   }
 });

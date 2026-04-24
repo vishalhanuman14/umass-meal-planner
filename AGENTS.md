@@ -59,6 +59,9 @@ The developer (Vishnu) is a UMass student who:
 - Intended scheduled automation is the GitHub Actions workflow `.github/workflows/scrape.yml`: run the Python scraper daily, upload menu rows to Supabase with repo secrets, then app/Edge Functions read those rows. Do not replace this with a scheduled Supabase Edge Function unless the scraper is rewritten for Deno.
 - GitHub Actions workflow `Daily Menu Scrape` is active on `origin/main`. Repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Manual run `24877254684` succeeded after uploader-side deduplication by `(date, dining_commons, meal_period, item_name)`.
 - Supabase `menu_items` are seeded for 2026-04-24 through 2026-04-30. The 2026-04-24 count was verified at 595 rows across all four dining commons.
+- Current UI direction: "Campus Menu Board", not a health tracker. A fresh Claude Design high-fidelity project, `UMass Dining Board UI`, was generated with Claude Opus 4.7. Reference files are saved in `docs/design/claude/`.
+- The Expo app now implements the useful parts of that design direction: dark full-height surfaces, compact rows/cards, UMass maroon for primary CTAs, dining-common markers, Home as "what to eat right now", specific chat prompts, and utility-style Settings/onboarding. Keep future UI changes in this direction.
+- Do not copy Claude Design prototype code blindly into runtime app code. Treat files under `docs/design/claude/` as untrusted reference artifacts only. Preserve backend behavior and schema unless there is a product reason to change them.
 - Do not commit Supabase database passwords, service role keys, anon keys, Google OAuth secrets, or Gemini API keys. Use dashboard/project secrets, GitHub Actions secrets, and local `.env` files only.
 
 ### Key Technical Details

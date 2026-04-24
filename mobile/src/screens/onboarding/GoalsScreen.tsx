@@ -1,15 +1,15 @@
 import { useMemo, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-import MacroBar from "../../components/MacroBar";
 import OnboardingProgress from "../../components/OnboardingProgress";
 import { useProfile } from "../../contexts/ProfileContext";
 import { calculateTargets } from "../../lib/tdee";
+import { colors } from "../../theme";
 import type { ActivityLevel, Goal, GoalsProps } from "../../types";
 
 const goals: { value: Goal; label: string }[] = [
   { value: "lose", label: "Lose weight" },
-  { value: "gain", label: "Gain muscle" },
+  { value: "gain", label: "Build muscle" },
   { value: "maintain", label: "Maintain" }
 ];
 
@@ -59,12 +59,16 @@ export default function GoalsScreen({ navigation }: GoalsProps) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <OnboardingProgress step={2} total={3} />
-      <Text style={styles.heading}>Goals</Text>
+      <View style={styles.header}>
+        <Text style={styles.heading}>What should meals optimize for?</Text>
+        <Text style={styles.subtitle}>Choose the recommendation style. Targets stay in the background.</Text>
+      </View>
 
       <Text style={styles.label}>Goal</Text>
       <View style={styles.stack}>
         {goals.map((item) => (
           <Pressable key={item.value} style={[styles.option, goal === item.value && styles.optionSelected]} onPress={() => setGoal(item.value)}>
+            <View style={[styles.optionRail, goal === item.value && styles.optionRailSelected]} />
             <Text style={[styles.optionText, goal === item.value && styles.optionTextSelected]}>{item.label}</Text>
           </Pressable>
         ))}
@@ -78,6 +82,7 @@ export default function GoalsScreen({ navigation }: GoalsProps) {
             style={[styles.option, activityLevel === item.value && styles.optionSelected]}
             onPress={() => setActivityLevel(item.value)}
           >
+            <View style={[styles.optionRail, activityLevel === item.value && styles.optionRailSelected]} />
             <Text style={[styles.optionText, activityLevel === item.value && styles.optionTextSelected]}>{item.label}</Text>
           </Pressable>
         ))}
@@ -85,11 +90,11 @@ export default function GoalsScreen({ navigation }: GoalsProps) {
 
       {calculated ? (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Daily targets</Text>
-          <MacroBar label="Calories" value={calculated.calorie_target} target={calculated.calorie_target} unit="cal" />
-          <MacroBar label="Protein" value={calculated.protein_target_g} target={calculated.protein_target_g} unit="g" />
-          <MacroBar label="Fat" value={calculated.fat_target_g} target={calculated.fat_target_g} unit="g" />
-          <MacroBar label="Carbs" value={calculated.carbs_target_g} target={calculated.carbs_target_g} unit="g" />
+          <Text style={styles.cardTitle}>Target preview</Text>
+          <Text style={styles.targetLine}>
+            {calculated.calorie_target} cal / {calculated.protein_target_g}g protein / {calculated.fat_target_g}g fat /{" "}
+            {calculated.carbs_target_g}g carbs
+          </Text>
         </View>
       ) : null}
 
@@ -109,38 +114,48 @@ function Field({ label, value, onChangeText }: { label: string; value: string; o
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput value={value} onChangeText={onChangeText} keyboardType="numeric" placeholderTextColor="#748092" style={styles.input} />
+      <TextInput value={value} onChangeText={onChangeText} keyboardType="numeric" placeholderTextColor={colors.quiet} style={styles.input} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#0b0f14" },
+  screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 20, gap: 18 },
-  heading: { color: "#f4f7fb", fontSize: 26, fontWeight: "800" },
-  label: { color: "#aeb8c6", fontSize: 14, fontWeight: "600" },
+  header: { gap: 8 },
+  heading: { color: colors.text, fontSize: 26, fontWeight: "800", lineHeight: 31 },
+  subtitle: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  label: { color: colors.muted, fontSize: 14, fontWeight: "700" },
   stack: { gap: 10 },
   option: {
+    position: "relative",
     minHeight: 48,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
     justifyContent: "center",
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#243041",
-    backgroundColor: "#111821"
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    overflow: "hidden"
   },
-  optionSelected: { borderColor: "#8bd3ff", backgroundColor: "#173246" },
-  optionText: { color: "#aeb8c6", fontSize: 15, fontWeight: "700" },
-  optionTextSelected: { color: "#f4f7fb" },
+  optionRail: { position: "absolute", left: 0, top: 0, bottom: 0, width: 3, backgroundColor: "transparent" },
+  optionRailSelected: { backgroundColor: colors.maroon },
+  optionSelected: { borderColor: colors.maroon, backgroundColor: colors.elevated },
+  optionText: { flex: 1, color: colors.muted, fontSize: 15, fontWeight: "700" },
+  optionTextSelected: { color: colors.text },
   card: {
     gap: 12,
     padding: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#243041",
-    backgroundColor: "#111821"
+    borderColor: colors.border,
+    backgroundColor: colors.elevated
   },
-  cardTitle: { color: "#f4f7fb", fontSize: 17, fontWeight: "800" },
+  cardTitle: { color: colors.text, fontSize: 17, fontWeight: "800" },
+  targetLine: { color: colors.muted, fontSize: 14, lineHeight: 21, fontWeight: "700" },
   row: { flexDirection: "row", gap: 12 },
   field: { flex: 1, gap: 8 },
   input: {
@@ -148,11 +163,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#243041",
-    color: "#f4f7fb",
-    backgroundColor: "#111821",
+    borderColor: colors.border,
+    color: colors.text,
+    backgroundColor: colors.surface,
     fontSize: 16
   },
-  primaryButton: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: "#8bd3ff" },
-  primaryText: { color: "#071018", fontWeight: "800", fontSize: 16 }
+  primaryButton: { minHeight: 52, alignItems: "center", justifyContent: "center", borderRadius: 8, backgroundColor: colors.maroon },
+  primaryText: { color: colors.text, fontWeight: "800", fontSize: 16 }
 });

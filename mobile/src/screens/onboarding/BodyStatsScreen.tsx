@@ -4,6 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import OnboardingProgress from "../../components/OnboardingProgress";
 import { cmToInches, inchesToCm, kgToPounds, poundsToKg } from "../../lib/tdee";
 import { useProfile } from "../../contexts/ProfileContext";
+import { colors } from "../../theme";
 import type { BodyStatsProps, Gender } from "../../types";
 
 const GENDERS: { label: string; value: Gender }[] = [
@@ -47,7 +48,8 @@ export default function BodyStatsScreen({ navigation }: BodyStatsProps) {
         <OnboardingProgress step={1} total={3} />
 
         <View style={styles.section}>
-          <Text style={styles.title}>Body stats</Text>
+          <Text style={styles.title}>Set your baseline.</Text>
+          <Text style={styles.subtitle}>A few numbers help tune recommendations. This is setup, not food tracking.</Text>
 
           <View style={styles.row}>
             <Field label="Feet" value={feet} onChangeText={setFeet} keyboardType="number-pad" />
@@ -73,9 +75,11 @@ export default function BodyStatsScreen({ navigation }: BodyStatsProps) {
         </View>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Pressable onPress={next} style={styles.button}>
-          <Text style={styles.buttonText}>Next</Text>
-        </Pressable>
+        <View style={styles.footer}>
+          <Pressable onPress={next} style={styles.button}>
+            <Text style={styles.buttonText}>Next</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -98,7 +102,7 @@ function Field({
       <TextInput
         keyboardType={keyboardType}
         onChangeText={onChangeText}
-        placeholderTextColor="#596579"
+        placeholderTextColor={colors.quiet}
         style={styles.input}
         value={value}
       />
@@ -109,20 +113,25 @@ function Field({
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
-    backgroundColor: "#0b0f14"
+    backgroundColor: colors.background
   },
   screen: {
     flexGrow: 1,
     padding: 20,
-    gap: 24
+    gap: 22
   },
   section: {
     gap: 16
   },
   title: {
-    color: "#f4f7fb",
+    color: colors.text,
     fontSize: 26,
     fontWeight: "800"
+  },
+  subtitle: {
+    color: colors.muted,
+    fontSize: 15,
+    lineHeight: 22
   },
   row: {
     flexDirection: "row",
@@ -133,17 +142,17 @@ const styles = StyleSheet.create({
     gap: 8
   },
   label: {
-    color: "#aeb8c6",
+    color: colors.muted,
     fontSize: 14
   },
   input: {
     minHeight: 50,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#243041",
+    borderColor: colors.border,
     paddingHorizontal: 14,
-    color: "#f4f7fb",
-    backgroundColor: "#111821",
+    color: colors.text,
+    backgroundColor: colors.surface,
     fontSize: 16
   },
   segmented: {
@@ -157,32 +166,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#243041",
-    backgroundColor: "#111821"
+    borderColor: colors.border,
+    backgroundColor: colors.surface
   },
   segmentActive: {
-    borderColor: "#8bd3ff",
-    backgroundColor: "#10283a"
+    borderColor: colors.maroon,
+    backgroundColor: colors.elevated
   },
   segmentText: {
-    color: "#aeb8c6",
+    color: colors.muted,
     fontWeight: "700"
   },
   segmentTextActive: {
-    color: "#f4f7fb"
+    color: colors.text
   },
   error: {
-    color: "#ff9b9b"
+    color: colors.danger
+  },
+  footer: {
+    marginTop: "auto",
+    paddingTop: 8
   },
   button: {
     minHeight: 52,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
-    backgroundColor: "#8bd3ff"
+    backgroundColor: colors.maroon
   },
   buttonText: {
-    color: "#071018",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "800"
   }

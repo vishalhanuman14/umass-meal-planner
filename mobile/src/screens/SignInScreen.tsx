@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-nati
 
 import { signInWithGoogle } from "../lib/auth";
 import { useAuth } from "../contexts/AuthContext";
+import { colors, commonColors } from "../theme";
 
 export default function SignInScreen() {
   const { authError } = useAuth();
@@ -23,9 +24,27 @@ export default function SignInScreen() {
 
   return (
     <View style={styles.screen}>
+      <View style={styles.lines} pointerEvents="none">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <View key={index} style={[styles.line, { top: 68 + index * 38 }]} />
+        ))}
+      </View>
+
       <View style={styles.copy}>
-        <Text style={styles.title}>UMass Nutrition</Text>
-        <Text style={styles.subtitle}>Personalized meal plans from UMass dining halls.</Text>
+        <View style={styles.brandRow}>
+          <View style={styles.brandMark}>
+            <Text style={styles.brandMarkText}>UM</Text>
+          </View>
+          <Text style={styles.eyebrow}>Dining board</Text>
+        </View>
+        <Text style={styles.title}>UMass Eats</Text>
+        <Text style={styles.subtitle}>Today's UMass dining picks, built around you.</Text>
+        <View style={styles.commons}>
+          <CommonsDot color={commonColors.worcester} label="Worcester" />
+          <CommonsDot color={commonColors.franklin} label="Franklin" />
+          <CommonsDot color={commonColors.hampshire} label="Hampshire" />
+          <CommonsDot color={commonColors.berkshire} label="Berkshire" />
+        </View>
       </View>
 
       <View style={styles.actions}>
@@ -35,10 +54,19 @@ export default function SignInScreen() {
           onPress={handleSignIn}
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed, loading && styles.buttonDisabled]}
         >
-          {loading ? <ActivityIndicator color="#071018" /> : <Text style={styles.buttonText}>Sign in with Google</Text>}
+          {loading ? <ActivityIndicator color={colors.text} /> : <Text style={styles.buttonText}>Continue with UMass Google</Text>}
         </Pressable>
-        <Text style={styles.note}>Use your @umass.edu account.</Text>
+        <Text style={styles.note}>Only @umass.edu accounts.</Text>
       </View>
+    </View>
+  );
+}
+
+function CommonsDot({ color, label }: { color: string; label: string }) {
+  return (
+    <View style={styles.commonsItem}>
+      <View style={[styles.commonsDot, { backgroundColor: color }]} />
+      <Text style={styles.commonsText}>{label}</Text>
     </View>
   );
 }
@@ -50,20 +78,75 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingTop: 96,
     paddingBottom: 44,
-    backgroundColor: "#0b0f14"
+    backgroundColor: colors.background
+  },
+  lines: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.4
+  },
+  line: {
+    position: "absolute",
+    left: 24,
+    right: 24,
+    height: 1,
+    backgroundColor: colors.border
   },
   copy: {
-    gap: 12
+    gap: 14
+  },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10
+  },
+  brandMark: {
+    width: 38,
+    height: 38,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    backgroundColor: colors.maroon
+  },
+  brandMarkText: {
+    color: colors.text,
+    fontWeight: "900",
+    fontSize: 13
+  },
+  eyebrow: {
+    color: colors.quiet,
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0,
+    textTransform: "uppercase"
   },
   title: {
-    color: "#f4f7fb",
-    fontSize: 38,
+    color: colors.text,
+    fontSize: 40,
     fontWeight: "800"
   },
   subtitle: {
-    color: "#aeb8c6",
+    color: colors.muted,
     fontSize: 17,
     lineHeight: 24
+  },
+  commons: {
+    marginTop: 10,
+    gap: 10
+  },
+  commonsItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9
+  },
+  commonsDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 8
+  },
+  commonsText: {
+    color: colors.muted,
+    fontSize: 14,
+    fontWeight: "600"
   },
   actions: {
     gap: 14
@@ -73,7 +156,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,
-    backgroundColor: "#8bd3ff"
+    backgroundColor: colors.maroon
   },
   buttonPressed: {
     opacity: 0.8
@@ -82,17 +165,17 @@ const styles = StyleSheet.create({
     opacity: 0.7
   },
   buttonText: {
-    color: "#071018",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "800"
   },
   note: {
-    color: "#748092",
+    color: colors.quiet,
     fontSize: 13,
     textAlign: "center"
   },
   error: {
-    color: "#ff9b9b",
+    color: colors.danger,
     fontSize: 14,
     lineHeight: 20
   }
