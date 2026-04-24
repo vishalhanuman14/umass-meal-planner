@@ -6,8 +6,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 
 ### Now
 
-1. Commit and push the verified enriched menu/detail-card/settings-save changes.
-2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+1. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
 
@@ -702,3 +701,5 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Settings save moved to a compact red top-right navigation action; the large in-body Save button was removed.
 - README now includes the current simulator screenshots for Home, Food Details, Chat, and Settings.
 - Simulator check passed for the minimal meal cards, tap-open food detail card, and Settings top-right Save placement on iPhone 17 Pro / iOS 26.2.
+- Commit `eb21bb1` pushed the enriched menu/detail-card/settings-save changes to `origin/main`.
+- Manual GitHub Actions run `24903108886` for `Daily Menu Scrape` succeeded after the push. Supabase `menu_items` for 2026-04-24 were verified at 598 rows, including enriched values: 486 rows with sugar, 501 with saturated fat, 284 with cholesterol, 530 with healthfulness, and 592 with recipe webcode.
