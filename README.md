@@ -38,14 +38,14 @@ GitHub Actions daily cron
 Supabase Postgres
 menu_items, profiles, meal_plans, chat_messages
         |
-        +-------------------+
-        |                   |
-        v                   v
-Expo React Native app   Supabase Edge Functions
-                         generate-meal-plan, chat
-                              |
-                              v
-                         Gemini API
+        +------------------------+------------------------+
+        |                        |                        |
+        v                        v                        v
+Expo React Native app      Next.js web app         Supabase Edge Functions
+                                                    generate-meal-plan, chat
+                                                           |
+                                                           v
+                                                      Gemini API
 ```
 
 ### Data Flow
@@ -83,6 +83,10 @@ Current iPhone simulator screenshots:
 | Home | Food Details | Chat | Settings |
 |------|--------------|------|----------|
 | <img src="docs/simulator-screens/doordash-redesign-after/home.png" alt="Home screen" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/food-detail.png" alt="Food detail card" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/chat.png" alt="Chat screen" width="180" /> | <img src="docs/simulator-screens/doordash-redesign-after/settings.png" alt="Settings screen" width="180" /> |
+
+### Web App
+
+The repo now also includes a separate `web/` app built with Next.js. It is intentionally a lighter surface than mobile: sign in with Supabase Google OAuth, load today&apos;s cached meal plan, and regenerate it when needed. It reuses the same Supabase tables and Edge Functions instead of introducing a second backend.
 
 ### Main Components
 
@@ -131,6 +135,7 @@ scraper/                  Python UMass Dining scraper
 supabase/migrations/      Postgres schema and RLS
 supabase/functions/       Deno Edge Functions
 mobile/                   Expo React Native app
+web/                      Next.js web app
 .github/workflows/        Daily scraper workflow
 ```
 
@@ -149,6 +154,15 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+`web/.env.local` for Next.js:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-or-publishable-key
+```
+
+For local web Google OAuth, add `http://localhost:3000/auth/callback` to the Supabase Auth redirect allow list.
 
 Supabase Edge Function secrets:
 
@@ -172,10 +186,24 @@ cd mobile
 npm install
 ```
 
+Install web dependencies:
+
+```bash
+cd web
+npm install
+```
+
 Start Expo:
 
 ```bash
 npm run start
+```
+
+Start the web app:
+
+```bash
+cd web
+npm run dev
 ```
 
 Run the scraper locally:
@@ -199,5 +227,6 @@ Current checks:
 python3 -m pytest tests/ -v
 python3 -m compileall scraper
 cd mobile && npm run typecheck
+cd web && npm run lint && npm run typecheck && npm run build
 python3 -m scraper.auto_scrape --test --day 2026-04-24 --all-commons --request-delay 0
 ```
