@@ -5,7 +5,7 @@
     "scheme": "umassnutrition",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "assetBundlePatterns": [
       "**/*"

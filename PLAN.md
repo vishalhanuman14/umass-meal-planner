@@ -7,7 +7,8 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 ### Now
 
 1. Add GitHub secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`, then run `Deploy Supabase Backend` manually once from GitHub Actions.
-2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+2. Add GitHub secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `EXPO_PUBLIC_SUPABASE_URL`, and `EXPO_PUBLIC_SUPABASE_ANON_KEY`, then run `Deploy Frontend` manually once from GitHub Actions.
+3. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
 
@@ -727,3 +728,11 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - The deploy job links the Supabase project, pushes migrations, deploys `generate-meal-plan` and `chat`, then smoke-tests that both function endpoints still return protected `401` responses when unauthenticated.
 - The workflow runs manually with `workflow_dispatch` and automatically on `main` pushes that change `supabase/functions/**` or `supabase/migrations/**`.
 - Remaining setup: add repo secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`; existing repo secrets only include `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+## Completed History - 2026-04-27 Frontend Deployment Automation
+
+- Confirmed the live web target is Cloudflare Pages project `umeal` with domains `umeal.pages.dev` and `umeal.vishnuvardhanbr.com`.
+- Confirmed the project was not connected to a Git provider and there was no frontend deployment GitHub Action.
+- Added `.github/workflows/deploy-frontend.yml` for Expo web deployment to Cloudflare Pages.
+- The workflow typechecks the app, exports Expo web assets, writes a Cloudflare Pages SPA fallback for `/auth/callback`, and deploys `mobile/dist` to project `umeal`.
+- Remaining setup: add repo secrets `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `EXPO_PUBLIC_SUPABASE_URL`, and `EXPO_PUBLIC_SUPABASE_ANON_KEY`.

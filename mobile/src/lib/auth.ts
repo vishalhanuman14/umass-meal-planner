@@ -1,5 +1,6 @@
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
+import { Platform } from "react-native";
 
 import { isSupabaseConfigured, supabase } from "./supabase";
 
@@ -20,15 +21,41 @@ function authParamsFromCallback(callbackUrl: string) {
   return params;
 }
 
+function getRedirectTo() {
+  if (Platform.OS === "web") {
+    return `${globalThis.location.origin}/auth/callback`;
+  }
+
+  return AuthSession.makeRedirectUri({
+    scheme: "umassnutrition",
+    path: "auth/callback"
+  });
+}
+
 export async function signInWithGoogle() {
   if (!isSupabaseConfigured) {
     throw new Error("Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY in mobile/.env.");
   }
 
-  const redirectTo = AuthSession.makeRedirectUri({
-    scheme: "umassnutrition",
-    path: "auth/callback"
-  });
+  const redirectTo = getRedirectTo();
+
+  if (Platform.OS === "web") {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+    return;
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

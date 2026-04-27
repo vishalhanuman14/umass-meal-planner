@@ -1,5 +1,6 @@
 node_modules/
 .expo/
+.wrangler/
 dist/
 npm-debug.log*
 .env

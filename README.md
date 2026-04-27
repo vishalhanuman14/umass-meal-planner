@@ -144,6 +144,27 @@ SUPABASE_DB_PASSWORD    # Project database password, not the service-role key
 
 It can be run manually with `workflow_dispatch` and also runs on pushes to `main` that change `supabase/functions/**` or `supabase/migrations/**`.
 
+## Frontend Deployment
+
+Expo web deployment is handled by:
+
+```text
+.github/workflows/deploy-frontend.yml
+```
+
+The workflow installs the mobile dependencies, typechecks the app, exports the Expo web build, adds a Cloudflare Pages SPA fallback for routes like `/auth/callback`, and deploys `mobile/dist` to the Cloudflare Pages project `umeal`.
+
+Required GitHub repo secrets:
+
+```bash
+CLOUDFLARE_API_TOKEN
+CLOUDFLARE_ACCOUNT_ID
+EXPO_PUBLIC_SUPABASE_URL
+EXPO_PUBLIC_SUPABASE_ANON_KEY
+```
+
+It can be run manually with `workflow_dispatch` and also runs on pushes to `main` that change `mobile/**`.
+
 ## Repo Layout
 
 ```text
