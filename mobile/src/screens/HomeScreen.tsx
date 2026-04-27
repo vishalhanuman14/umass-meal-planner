@@ -423,7 +423,6 @@ function BestMove({
       <ClosedHero
         commonLabel={common.label}
         commonColor={common.color}
-        context={context}
       />
     );
   }
@@ -454,12 +453,10 @@ function BestMove({
 
 function ClosedHero({
   commonLabel,
-  commonColor,
-  context
+  commonColor
 }: {
   commonLabel: string;
   commonColor: string;
-  context: string;
 }) {
   return (
     <View style={styles.closedHero}>
@@ -472,9 +469,7 @@ function ClosedHero({
           <Text style={styles.commonPillText}>{commonLabel}</Text>
         </View>
       </View>
-      <Text style={styles.closedTitle}>No best right now.</Text>
-      <Text style={styles.closedBody}>{commonLabel} is not serving right now. Today's plan is below.</Text>
-      {context ? <Text style={styles.closedContext}>{context}</Text> : null}
+      <Text style={styles.closedTitle}>Nothing available right now</Text>
     </View>
   );
 }
@@ -548,8 +543,6 @@ const styles = StyleSheet.create({
   closedBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.surfaceWarm },
   closedBadgeText: { color: colors.quiet, fontSize: 12, fontWeight: "900" },
   closedTitle: { color: colors.text, fontSize: 23, fontWeight: "900", lineHeight: 29 },
-  closedBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
-  closedContext: { color: colors.quiet, fontSize: 13, fontWeight: "800", lineHeight: 18 },
   fitCard: { padding: 16, borderRadius: 22, backgroundColor: colors.surfaceWarm },
   fitStats: { flexDirection: "row", gap: 10 },
   stat: { flex: 1, gap: 3 },

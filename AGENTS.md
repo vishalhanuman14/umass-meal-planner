@@ -68,7 +68,7 @@ The developer (Vishnu) is a UMass student who:
 - The Expo app should use cream full-screen backgrounds, white rounded cards, soft shadows, DoorDash-like red primary pills, soft white/cream secondary pills, dining-common color dots, sparse copy, and Home as "what to eat right now".
 - Every visible element needs a job: help the student decide what to eat, ask a menu question, or adjust preferences. Remove anything that only decorates or explains the obvious.
 - Keep Home focused on the hero recommendation and meal cards. `Try another` is secondary, not the main CTA. Top nutrition summary should stay lightweight: calories and protein only unless there is a product reason to add more.
-- Do not show `Best right now` when the selected dining commons is closed. Use a short closed-state banner in that space and keep the meal plan cards below.
+- Do not show `Best right now` when the selected dining commons is closed. Use a minimal `Nothing available right now` banner in that space and keep the meal plan cards below.
 - Keep meal item rows uncluttered. Show only the food name and essential calories/protein on the card; put station, serving size, extra nutrition, allergens, ingredients, carbon rating, and healthfulness inside a tap-open food detail card.
 - `% Daily Value` nutrition fields are scraped and stored for detail views only. Keep DV numbers out of main meal rows and Home summary.
 - Settings should prioritize meal preferences first, then dining commons and notes, with body/account details lower on the page.

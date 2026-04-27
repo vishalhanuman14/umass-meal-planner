@@ -21,7 +21,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 - Dining commons should be soft colored markers, not neon rails.
 - Additional nutrition belongs behind item tap details, not on the visible meal cards.
 - Dining hall hours/period availability can appear only as a short Home status line for the recommended dining commons.
-- If the recommended dining commons is closed, Home should show a closed banner instead of `Best right now`.
+- If the recommended dining commons is closed, Home should show a minimal `Nothing available right now` banner instead of `Best right now`.
 
 ### Later
 
@@ -741,7 +741,7 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 ## Completed History - 2026-04-27 Closed Dining Hero
 
 - Updated Home so `Best right now` is not shown when the selected dining commons is closed.
-- Closed hours now render a short banner in the same hero space, with the daily meal plan cards still visible below.
+- Closed hours now render a short `Nothing available right now` banner in the same hero space, with the daily meal plan cards still visible below.
 - Verified `npm run typecheck`, exported the Expo web bundle, and manually deployed it to Cloudflare Pages.
 - Live site `https://umeal.vishnuvardhanbr.com` now serves bundle `AppEntry-060d5ed550a05136a2395ea564ddd404.js`, which includes the closed banner copy.
 - GitHub Actions frontend deploy is still blocked until Cloudflare and Expo public env secrets are added to the repo.
