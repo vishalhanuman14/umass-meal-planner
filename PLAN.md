@@ -6,8 +6,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 
 ### Now
 
-1. Deploy metadata migration/functions and trigger `Daily Menu Scrape` once after push so `dining_commons_metadata` is seeded.
-2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+1. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
 
@@ -706,3 +705,16 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Commit `eb21bb1` pushed the enriched menu/detail-card/settings-save changes to `origin/main`.
 - Manual GitHub Actions run `24903108886` for `Daily Menu Scrape` succeeded after the push. Supabase `menu_items` for 2026-04-24 were verified at 598 rows, including enriched values: 486 rows with sugar, 501 with saturated fat, 284 with cholesterol, 530 with healthfulness, and 592 with recipe webcode.
 - Supabase auth redirect allow-list now includes `http://localhost:3000/auth/callback` in addition to `umassnutrition://auth/callback`. Smoke tests returned Google OAuth `302` redirects for both callback URLs with the real Google client id.
+
+## Completed History - 2026-04-27
+
+- Added Supabase migration `003_dining_metadata.sql` for `dining_commons_metadata` and `% Daily Value` columns on `menu_items`.
+- Extended the Python scraper to read UMass dining common location pages for regular hours, special hours, address, payment methods, and livestream links.
+- Extended menu parsing/upload to capture UMass `% Daily Value` fields and upload 4 dining metadata rows alongside menu rows.
+- Updated Edge Functions so `generate-meal-plan` and `chat` can include dining metadata and DV context in Gemini prompts without changing the visible app into a hall directory.
+- Updated Home to show one short dining status/period-availability line on the hero recommendation only.
+- Updated food detail cards to show `%DV` only inside the tap-open nutrition detail card and to label dietary tags cleanly.
+- Applied the remote Supabase migration with `npx supabase@latest db push --yes`.
+- Redeployed Supabase Edge Functions `generate-meal-plan` and `chat`; unauthenticated smoke tests still return `401 Missing authorization header`.
+- Manual GitHub Actions run `24977084795` for `Daily Menu Scrape` succeeded on commit `8bb82ac` and uploaded `3850` menu rows plus `4` dining metadata rows.
+- Verification passed: `python3 -m pytest tests/ -v`, `python3 -m compileall scraper`, `npm run typecheck`, `git diff --check`, and a live one-day dry scrape for 2026-04-27 across all four dining commons.
