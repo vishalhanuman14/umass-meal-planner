@@ -742,3 +742,6 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 
 - Updated Home so `Best right now` is not shown when the selected dining commons is closed.
 - Closed hours now render a short banner in the same hero space, with the daily meal plan cards still visible below.
+- Verified `npm run typecheck`, exported the Expo web bundle, and manually deployed it to Cloudflare Pages.
+- Live site `https://umeal.vishnuvardhanbr.com` now serves bundle `AppEntry-060d5ed550a05136a2395ea564ddd404.js`, which includes the closed banner copy.
+- GitHub Actions frontend deploy is still blocked until Cloudflare and Expo public env secrets are added to the repo.
