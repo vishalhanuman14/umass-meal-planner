@@ -743,5 +743,5 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Updated Home so `Best right now` is not shown when the selected dining commons is closed.
 - Closed hours now render a short `Nothing available right now` banner in the same hero space, with the daily meal plan cards still visible below.
 - Verified `npm run typecheck`, exported the Expo web bundle, and manually deployed it to Cloudflare Pages.
-- Live site `https://umeal.vishnuvardhanbr.com` now serves bundle `AppEntry-060d5ed550a05136a2395ea564ddd404.js`, which includes the closed banner copy.
-- GitHub Actions frontend deploy is still blocked until Cloudflare and Expo public env secrets are added to the repo.
+- Live site `https://umeal.vishnuvardhanbr.com` now serves bundle `AppEntry-ccee1fcccee968366ae6c4dd5bf40c90.js`, which includes the minimal `Nothing available right now` banner copy.
+- GitHub Actions frontend deploy is still blocked until `CLOUDFLARE_API_TOKEN` is added. `CLOUDFLARE_ACCOUNT_ID`, `EXPO_PUBLIC_SUPABASE_URL`, and `EXPO_PUBLIC_SUPABASE_ANON_KEY` are already configured.
