@@ -139,7 +139,7 @@ function closeLabel(hour: DiningHour) {
 function openStatus(metadata?: DiningCommonsMetadata) {
   const special = specialHourForToday(metadata);
   const hour = special ?? mainRegularHour(metadata);
-  if (!hour) return "";
+  if (!hour) return { label: "", isOpen: null };
 
   const now = easternNow();
   const isOpen = special
@@ -147,10 +147,10 @@ function openStatus(metadata?: DiningCommonsMetadata) {
     : hourAppliesToday(hour, now.weekday, now.minutesOfDay);
   if (isOpen) {
     const closes = closeLabel(hour);
-    return closes ? `Open until ${closes}` : "Open now";
+    return { label: closes ? `Open until ${closes}` : "Open now", isOpen: true };
   }
 
-  return "Closed now";
+  return { label: "Closed now", isOpen: false };
 }
 
 function compactPeriodLabel(period: string) {
@@ -158,7 +158,7 @@ function compactPeriodLabel(period: string) {
 }
 
 function diningContextLine(metadata?: DiningCommonsMetadata, availablePeriods?: string[]) {
-  const status = openStatus(metadata);
+  const status = openStatus(metadata).label;
   const periods = availablePeriods?.length
     ? `${availablePeriods.map(compactPeriodLabel).join(", ")} today`
     : "";
@@ -415,7 +415,18 @@ function BestMove({
   const common = getDiningCommon(meal.dining_commons);
   const primaryItem = meal.items[0]?.item ?? titleCase(period);
   const supportingItems = meal.items.slice(1, 3).map((item) => item.item).join(", ");
+  const status = openStatus(metadata);
   const context = diningContextLine(metadata, availablePeriods);
+
+  if (status.isOpen === false) {
+    return (
+      <ClosedHero
+        commonLabel={common.label}
+        commonColor={common.color}
+        context={context}
+      />
+    );
+  }
 
   return (
     <View style={styles.hero}>
@@ -437,6 +448,33 @@ function BestMove({
           {generating ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.heroButtonText}>Try another</Text>}
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+function ClosedHero({
+  commonLabel,
+  commonColor,
+  context
+}: {
+  commonLabel: string;
+  commonColor: string;
+  context: string;
+}) {
+  return (
+    <View style={styles.closedHero}>
+      <View style={styles.heroTop}>
+        <View style={styles.closedBadge}>
+          <Text style={styles.closedBadgeText}>Closed now</Text>
+        </View>
+        <View style={styles.commonPill}>
+          <View style={[styles.commonDot, { backgroundColor: commonColor }]} />
+          <Text style={styles.commonPillText}>{commonLabel}</Text>
+        </View>
+      </View>
+      <Text style={styles.closedTitle}>No best right now.</Text>
+      <Text style={styles.closedBody}>{commonLabel} is not serving right now. Today's plan is below.</Text>
+      {context ? <Text style={styles.closedContext}>{context}</Text> : null}
     </View>
   );
 }
@@ -506,6 +544,12 @@ const styles = StyleSheet.create({
   heroMeta: { flex: 1, color: colors.text, fontSize: 14, fontWeight: "800", lineHeight: 20 },
   heroButton: { minHeight: 42, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.surfaceWarm },
   heroButtonText: { color: colors.primary, fontSize: 13, fontWeight: "900" },
+  closedHero: { ...shadows.card, gap: 12, padding: 20, borderRadius: 28, backgroundColor: colors.surface },
+  closedBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.surfaceWarm },
+  closedBadgeText: { color: colors.quiet, fontSize: 12, fontWeight: "900" },
+  closedTitle: { color: colors.text, fontSize: 23, fontWeight: "900", lineHeight: 29 },
+  closedBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  closedContext: { color: colors.quiet, fontSize: 13, fontWeight: "800", lineHeight: 18 },
   fitCard: { padding: 16, borderRadius: 22, backgroundColor: colors.surfaceWarm },
   fitStats: { flexDirection: "row", gap: 10 },
   stat: { flex: 1, gap: 3 },
