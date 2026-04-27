@@ -59,6 +59,14 @@ export type MealPlanItem = {
   protein_g: number;
   fat_g: number;
   carbs_g: number;
+  total_fat_dv?: number;
+  saturated_fat_dv?: number;
+  cholesterol_dv?: number;
+  sodium_dv?: number;
+  carbs_dv?: number;
+  fiber_dv?: number;
+  sugars_dv?: number;
+  protein_dv?: number;
   fiber_g?: number;
   sodium_mg?: number;
   sugars_g?: number;
@@ -107,4 +115,28 @@ export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   created_at: string;
+};
+
+export type DiningHour = {
+  label?: string;
+  days?: string;
+  hours?: string;
+  days_of_week?: string[];
+  date_start?: string | null;
+  date_end?: string | null;
+  open_minutes?: number | null;
+  close_minutes?: number | null;
+};
+
+export type DiningCommonsMetadata = {
+  dining_commons: string;
+  display_name: string;
+  address: string;
+  description: string;
+  regular_hours: DiningHour[];
+  special_hours: DiningHour[];
+  payment_methods: string[];
+  livestreams: { label?: string; url?: string }[];
+  source_url: string;
+  updated_at: string;
 };

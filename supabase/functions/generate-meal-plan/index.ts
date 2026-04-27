@@ -8,7 +8,14 @@ import {
   requirePost,
 } from "../_shared/supabase.ts";
 import { GEMINI_FLASH_MODEL, generateGeminiText, parseGeminiJson } from "../_shared/gemini.ts";
-import { fetchMenuItems, formatMenuForPrompt, normalizeDiningCommons, todayInEasternTime, type MenuItem } from "../_shared/menu.ts";
+import {
+  fetchDiningCommonsMetadata,
+  fetchMenuItems,
+  formatMenuForPrompt,
+  normalizeDiningCommons,
+  todayInEasternTime,
+  type MenuItem,
+} from "../_shared/menu.ts";
 import { fetchProfile, formatProfileForPrompt, type Profile } from "../_shared/profile.ts";
 
 type GenerateRequestBody = {
@@ -31,6 +38,14 @@ type MealPlanItem = {
   carbs_g?: unknown;
   station?: unknown;
   serving_size?: unknown;
+  total_fat_dv?: unknown;
+  saturated_fat_dv?: unknown;
+  cholesterol_dv?: unknown;
+  sodium_dv?: unknown;
+  carbs_dv?: unknown;
+  fiber_dv?: unknown;
+  sugars_dv?: unknown;
+  protein_dv?: unknown;
   fiber_g?: unknown;
   sodium_mg?: unknown;
   sugars_g?: unknown;
@@ -218,6 +233,14 @@ function enrichMealPlan(plan: MealPlan, menuItems: MenuItem[]): MealPlan {
         ...item,
         station: source.station,
         serving_size: source.serving_size,
+        total_fat_dv: Math.round(scaled(source.total_fat_dv, item.servings)),
+        saturated_fat_dv: Math.round(scaled(source.saturated_fat_dv, item.servings)),
+        cholesterol_dv: Math.round(scaled(source.cholesterol_dv, item.servings)),
+        sodium_dv: Math.round(scaled(source.sodium_dv, item.servings)),
+        carbs_dv: Math.round(scaled(source.carbs_dv, item.servings)),
+        fiber_dv: Math.round(scaled(source.fiber_dv, item.servings)),
+        sugars_dv: Math.round(scaled(source.sugars_dv, item.servings)),
+        protein_dv: Math.round(scaled(source.protein_dv, item.servings)),
         fiber_g: scaled(source.fiber_g, item.servings),
         sodium_mg: Math.round(scaled(source.sodium_mg, item.servings)),
         sugars_g: scaled(source.sugars_g, item.servings),
@@ -307,7 +330,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const prompt = buildMealPlanPrompt(profile, date, formatMenuForPrompt(menuItems));
+    const metadata = await fetchDiningCommonsMetadata(supabase, preferredCommons);
+    const prompt = buildMealPlanPrompt(profile, date, formatMenuForPrompt(menuItems, { metadata }));
     const raw = await generateGeminiText(prompt, {
       model: GEMINI_FLASH_MODEL,
       response_mime_type: "application/json",

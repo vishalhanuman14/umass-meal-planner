@@ -6,7 +6,8 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 
 ### Now
 
-1. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+1. Deploy metadata migration/functions and trigger `Daily Menu Scrape` once after push so `dining_commons_metadata` is seeded.
+2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
 
@@ -18,6 +19,7 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 - Secondary actions use soft white/cream pills.
 - Dining commons should be soft colored markers, not neon rails.
 - Additional nutrition belongs behind item tap details, not on the visible meal cards.
+- Dining hall hours/period availability can appear only as a short Home status line for the recommended dining commons.
 
 ### Later
 

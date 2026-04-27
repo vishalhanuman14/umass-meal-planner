@@ -68,16 +68,22 @@ class TestParseMenu(unittest.TestCase):
             "allergens": "soy",
             "ingredient_list": "Rice, soy sauce",
             "sugars_g": "4.2g",
+            "sugars_dv": "8%",
             "saturated_fat_g": "1.1g",
+            "sat_fat_dv": "6%",
             "cholesterol_mg": "5mg",
+            "cholesterol_dv": "2%",
             "healthfulness": "60",
             "recipe_webcode": "H VGN CR1",
         })
         self.assertEqual(item["allergens"], "soy")
         self.assertEqual(item["ingredient_list"], "Rice, soy sauce")
         self.assertEqual(item["sugars_g"], 4.2)
+        self.assertEqual(item["sugars_dv"], 8)
         self.assertEqual(item["saturated_fat_g"], 1.1)
+        self.assertEqual(item["saturated_fat_dv"], 6)
         self.assertEqual(item["cholesterol_mg"], 5.0)
+        self.assertEqual(item["cholesterol_dv"], 2)
         self.assertEqual(item["healthfulness"], 60)
         self.assertEqual(item["recipe_webcode"], "H VGN CR1")
 
@@ -93,7 +99,7 @@ class TestParseMenu(unittest.TestCase):
                             "meals": {
                                 "lunch": {
                                     "Station A": [{"name": "White Rice", "calories": 100, "sugars_g": 1.5}],
-                                    "Station B": [{"name": "White Rice", "calories": 100, "sugars_g": 1.5}],
+                                    "Station B": [{"name": "White Rice", "calories": 100, "sugars_g": 1.5, "sugars_dv": 3}],
                                 },
                                 "dinner": {
                                     "Station A": [{"name": "White Rice", "calories": 100}],
@@ -110,7 +116,33 @@ class TestParseMenu(unittest.TestCase):
         lunch = next(row for row in rows if row["meal_period"] == "lunch")
         self.assertEqual(lunch["station"], "Station A / Station B")
         self.assertEqual(lunch["sugars_g"], 1.5)
+        self.assertEqual(lunch["sugars_dv"], 0)
         self.assertIn("healthfulness", lunch)
+
+    def test_parse_location_page_metadata(self):
+        from scraper.auto_scrape import _parse_location_page
+
+        html = """
+        <html><body>
+          <h2>Regular Hours of Operation</h2>
+          <p>Worcester Commons</p><p>Monday-Sunday</p><p>7:00 AM - Midnight</p>
+          <p>Grab'n Go</p><p>Monday-Friday</p><p>7:00 AM - 8:00 PM</p>
+          <h2>Accepted Payment</h2>
+          <p>Meal Plans</p><p>Dining Dollars</p>
+          <h2>Location Manager</h2>
+          <h1>Worcester Commons</h1>
+          <p>Located in the Northeast Residential Area, Worcester Dining Commons has many options for students.</p>
+          <h1>Our Location</h1><p>667 N Pleasant St, Amherst MA 01003</p>
+          <a href="https://www.youtube.com/example">Livestream - Worcester Commons North</a>
+        </body></html>
+        """
+
+        metadata = _parse_location_page("worcester", html, year=2026)
+        self.assertEqual(metadata["address"], "667 N Pleasant St, Amherst MA 01003")
+        self.assertEqual(metadata["payment_methods"], ["Meal Plans", "Dining Dollars"])
+        self.assertEqual(metadata["regular_hours"][0]["open_minutes"], 420)
+        self.assertEqual(metadata["regular_hours"][0]["close_minutes"], 1440)
+        self.assertEqual(metadata["livestreams"][0]["label"], "Livestream - Worcester Commons North")
 
     def test_validate_menu_no_meals(self):
         from scraper.parse_menu import validate_menu

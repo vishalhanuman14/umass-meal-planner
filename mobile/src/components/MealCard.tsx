@@ -26,7 +26,7 @@ export default function MealCard({ period, meal }: MealCardProps) {
     supabase
       .from("menu_items")
       .select(
-        "station, serving_size, fiber_g, sodium_mg, sugars_g, saturated_fat_g, trans_fat_g, cholesterol_mg, healthfulness, dietary_tags, allergens, ingredient_list, carbon_rating"
+        "station, serving_size, total_fat_dv, saturated_fat_dv, cholesterol_dv, sodium_dv, carbs_dv, fiber_dv, sugars_dv, protein_dv, fiber_g, sodium_mg, sugars_g, saturated_fat_g, trans_fat_g, cholesterol_mg, healthfulness, dietary_tags, allergens, ingredient_list, carbon_rating"
       )
       .eq("date", easternToday())
       .eq("dining_commons", common.key)
@@ -81,6 +81,14 @@ export default function MealCard({ period, meal }: MealCardProps) {
 type MenuItemDetail = {
   station?: string;
   serving_size?: string;
+  total_fat_dv?: number;
+  saturated_fat_dv?: number;
+  cholesterol_dv?: number;
+  sodium_dv?: number;
+  carbs_dv?: number;
+  fiber_dv?: number;
+  sugars_dv?: number;
+  protein_dv?: number;
   fiber_g?: number;
   sodium_mg?: number;
   sugars_g?: number;
@@ -108,6 +116,14 @@ function easternToday() {
 function scaleMenuDetails(detail: MenuItemDetail, servings: number) {
   return {
     ...detail,
+    total_fat_dv: scaleDetail(detail.total_fat_dv, servings),
+    saturated_fat_dv: scaleDetail(detail.saturated_fat_dv, servings),
+    cholesterol_dv: scaleDetail(detail.cholesterol_dv, servings),
+    sodium_dv: scaleDetail(detail.sodium_dv, servings),
+    carbs_dv: scaleDetail(detail.carbs_dv, servings),
+    fiber_dv: scaleDetail(detail.fiber_dv, servings),
+    sugars_dv: scaleDetail(detail.sugars_dv, servings),
+    protein_dv: scaleDetail(detail.protein_dv, servings),
     fiber_g: scaleDetail(detail.fiber_g, servings),
     sodium_mg: scaleDetail(detail.sodium_mg, servings),
     sugars_g: scaleDetail(detail.sugars_g, servings),
@@ -141,15 +157,15 @@ function FoodDetailModal({
   const carbon = item.carbon_rating?.trim();
   const detailStats = [
     { label: "Calories", value: `${Math.round(item.calories)} cal` },
-    { label: "Protein", value: `${Math.round(item.protein_g)}g` },
-    { label: "Fat", value: `${Math.round(item.fat_g)}g` },
-    { label: "Carbs", value: `${Math.round(item.carbs_g)}g` },
-    numericDetail("Fiber", item.fiber_g, "g", true),
-    numericDetail("Sugar", item.sugars_g, "g", true),
-    numericDetail("Sodium", item.sodium_mg, "mg", true),
-    numericDetail("Sat fat", item.saturated_fat_g, "g", true),
-    numericDetail("Trans fat", item.trans_fat_g, "g", true),
-    numericDetail("Cholesterol", item.cholesterol_mg, "mg", true)
+    nutrientDetail("Protein", item.protein_g, "g", item.protein_dv),
+    nutrientDetail("Fat", item.fat_g, "g", item.total_fat_dv),
+    nutrientDetail("Carbs", item.carbs_g, "g", item.carbs_dv),
+    nutrientDetail("Fiber", item.fiber_g, "g", item.fiber_dv, true),
+    nutrientDetail("Sugar", item.sugars_g, "g", item.sugars_dv, true),
+    nutrientDetail("Sodium", item.sodium_mg, "mg", item.sodium_dv, true),
+    nutrientDetail("Sat fat", item.saturated_fat_g, "g", item.saturated_fat_dv, true),
+    nutrientDetail("Trans fat", item.trans_fat_g, "g", undefined, true),
+    nutrientDetail("Cholesterol", item.cholesterol_mg, "mg", item.cholesterol_dv, true)
   ].filter((stat): stat is { label: string; value: string } => Boolean(stat));
 
   return (
@@ -188,18 +204,21 @@ function FoodDetailModal({
                 <Text style={styles.detailLabel}>Dining notes</Text>
                 <Text style={styles.detailValue}>
                   {carbon ? `Carbon ${carbon}` : ""}{carbon && item.healthfulness ? " · " : ""}
-                  {item.healthfulness ? `Health ${item.healthfulness}/100` : ""}
+                  {item.healthfulness ? `Health ${item.healthfulness}/7` : ""}
                 </Text>
               </View>
             ) : null}
 
             {tags.length ? (
-              <View style={styles.badges}>
-                {tags.map((tag) => (
-                  <View key={tag} style={styles.badge}>
-                    <Text style={styles.badgeText}>{titleCase(tag)}</Text>
-                  </View>
-                ))}
+              <View style={styles.detailLine}>
+                <Text style={styles.detailLabel}>Tags</Text>
+                <View style={styles.badges}>
+                  {tags.map((tag) => (
+                    <View key={tag} style={styles.badge}>
+                      <Text style={styles.badgeText}>{dietaryTagLabel(tag)}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
             ) : null}
 
@@ -223,12 +242,35 @@ function FoodDetailModal({
   );
 }
 
-function numericDetail(label: string, value: number | undefined, unit: string, hideZero = false) {
+const DIETARY_TAG_LABELS: Record<string, string> = {
+  veg: "Vegetarian",
+  vegetarian: "Vegetarian",
+  vegan: "Vegan",
+  "plant based": "Plant Based",
+  plant_based: "Plant Based",
+  halal: "Halal",
+  local: "Local",
+  sustainable: "Sustainable",
+  "whole grain": "Whole Grain",
+  whole_grain: "Whole Grain",
+  "antibiotic free": "Antibiotic Free",
+  antibiotic_free: "Antibiotic Free"
+};
+
+function dietaryTagLabel(value: string) {
+  const key = value.trim().toLowerCase();
+  return DIETARY_TAG_LABELS[key] ?? titleCase(value);
+}
+
+function nutrientDetail(label: string, value: number | undefined, unit: string, dailyValue?: number, hideZero = false) {
   if (value == null || !Number.isFinite(value) || (hideZero && value === 0)) {
     return null;
   }
 
-  return { label, value: `${formatDetailNumber(value, unit)}${unit}` };
+  const dv = dailyValue != null && Number.isFinite(dailyValue) && dailyValue > 0
+    ? ` · ${Math.round(dailyValue)}% DV`
+    : "";
+  return { label, value: `${formatDetailNumber(value, unit)}${unit}${dv}` };
 }
 
 function formatDetailNumber(value: number, unit: string) {

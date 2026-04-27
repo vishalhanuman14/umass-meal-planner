@@ -35,6 +35,14 @@ def normalize_item(raw: dict[str, Any]) -> dict[str, Any]:
 
     calories = to_int(raw.get("calories") or raw.get("cal"))
     calories_from_fat = to_int(raw.get("calories_from_fat") or raw.get("calories-from-fat"))
+    total_fat_dv = to_int(raw.get("total_fat_dv") or raw.get("total-fat-dv"))
+    saturated_fat_dv = to_int(raw.get("saturated_fat_dv") or raw.get("sat_fat_dv") or raw.get("sat-fat-dv"))
+    cholesterol_dv = to_int(raw.get("cholesterol_dv") or raw.get("cholesterol-dv"))
+    sodium_dv = to_int(raw.get("sodium_dv") or raw.get("sodium-dv"))
+    carbs_dv = to_int(raw.get("carbs_dv") or raw.get("total_carb_dv") or raw.get("total-carb-dv"))
+    fiber_dv = to_int(raw.get("fiber_dv") or raw.get("dietary_fiber_dv") or raw.get("dietary-fiber-dv"))
+    sugars_dv = to_int(raw.get("sugars_dv") or raw.get("sugars-dv"))
+    protein_dv = to_int(raw.get("protein_dv") or raw.get("protein-dv"))
     protein_g = to_float(raw.get("protein_g") or raw.get("protein"))
     fat_g = to_float(raw.get("fat_g") or raw.get("total_fat") or raw.get("fat"))
     saturated_fat_g = to_float(raw.get("saturated_fat_g") or raw.get("sat_fat") or raw.get("sat-fat"))
@@ -65,6 +73,14 @@ def normalize_item(raw: dict[str, Any]) -> dict[str, Any]:
         "serving_size": serving_size,
         "calories": calories,
         "calories_from_fat": calories_from_fat,
+        "total_fat_dv": total_fat_dv,
+        "saturated_fat_dv": saturated_fat_dv,
+        "cholesterol_dv": cholesterol_dv,
+        "sodium_dv": sodium_dv,
+        "carbs_dv": carbs_dv,
+        "fiber_dv": fiber_dv,
+        "sugars_dv": sugars_dv,
+        "protein_dv": protein_dv,
         "protein_g": round(protein_g, 1),
         "fat_g": round(fat_g, 1),
         "saturated_fat_g": round(saturated_fat_g, 1),

@@ -10,7 +10,7 @@ import {
   requirePost,
 } from "../_shared/supabase.ts";
 import { GEMINI_FLASH_MODEL, generateGeminiText, parseGeminiJson } from "../_shared/gemini.ts";
-import { fetchMenuItems, formatMenuForPrompt, todayInEasternTime } from "../_shared/menu.ts";
+import { fetchDiningCommonsMetadata, fetchMenuItems, formatMenuForPrompt, todayInEasternTime } from "../_shared/menu.ts";
 import { fetchProfile, formatProfileForPrompt, type Profile } from "../_shared/profile.ts";
 
 type ChatRequestBody = {
@@ -132,16 +132,17 @@ Deno.serve(async (req) => {
     const { supabase, user } = await authenticateRequest(req);
     const date = todayInEasternTime();
 
-    const [profile, menuItems, history] = await Promise.all([
+    const [profile, menuItems, history, metadata] = await Promise.all([
       fetchProfile(supabase, user.id),
       fetchMenuItems(supabase, date),
       fetchRecentMessages(supabase, user.id),
+      fetchDiningCommonsMetadata(supabase),
     ]);
 
     const prompt = buildChatPrompt(
       profile,
       date,
-      formatMenuForPrompt(menuItems, { includeIngredients: true }),
+      formatMenuForPrompt(menuItems, { includeIngredients: true, metadata }),
       history,
       message,
     );

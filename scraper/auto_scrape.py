@@ -48,6 +48,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 AJAX_BASE = "https://umassdining.com/foodpro-menu-ajax"
+LOCATION_BASE = "https://umassdining.com/locations-menus"
 REQUEST_TIMEOUT = 20
 DINING_COMMONS = {
     "worcester": {"tid": 1, "display_name": "Worcester"},
@@ -55,6 +56,7 @@ DINING_COMMONS = {
     "hampshire": {"tid": 3, "display_name": "Hampshire"},
     "berkshire": {"tid": 4, "display_name": "Berkshire"},
 }
+WEEKDAY_ORDER = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
@@ -106,6 +108,14 @@ class _ItemHTMLParser(HTMLParser):
                 "serving_size": (data.get("data-serving-size") or "1 serving").strip(),
                 "calories": int(num("data-calories")),
                 "calories_from_fat": int(num("data-calories-from-fat")),
+                "total_fat_dv": int(num("data-total-fat-dv")),
+                "saturated_fat_dv": int(num("data-sat-fat-dv")),
+                "cholesterol_dv": int(num("data-cholesterol_dv")),
+                "sodium_dv": int(num("data-sodium-dv")),
+                "carbs_dv": int(num("data-total-carb-dv")),
+                "fiber_dv": int(num("data-dietary-fiber-dv")),
+                "sugars_dv": int(num("data-sugars-dv")),
+                "protein_dv": int(num("data-protein-dv")),
                 "protein_g": round(num("data-protein"), 1),
                 "fat_g": round(num("data-total-fat"), 1),
                 "saturated_fat_g": round(num("data-sat-fat"), 1),
@@ -123,6 +133,56 @@ class _ItemHTMLParser(HTMLParser):
                 "recipe_webcode": (data.get("data-recipe-webcode") or "").strip(),
             }
         )
+
+
+class _LocationPageParser(HTMLParser):
+    """Collect visible text and links from a UMass dining location page."""
+
+    def __init__(self):
+        super().__init__()
+        self.text_lines: list[str] = []
+        self.links: list[dict[str, str]] = []
+        self._current_href: str | None = None
+        self._current_text: list[str] = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
+        if tag in {"script", "style"}:
+            self._skip_depth += 1
+            return
+
+        if tag != "a":
+            return
+
+        attrs_dict = dict(attrs)
+        href = attrs_dict.get("href")
+        if href:
+            self._current_href = href
+            self._current_text = []
+
+    def handle_endtag(self, tag: str):
+        if tag in {"script", "style"} and self._skip_depth:
+            self._skip_depth -= 1
+            return
+
+        if tag == "a" and self._current_href:
+            text = " ".join(self._current_text).strip()
+            if text:
+                self.links.append({"label": text, "url": self._current_href})
+            self._current_href = None
+            self._current_text = []
+
+    def handle_data(self, data: str):
+        if self._skip_depth:
+            return
+
+        text = re.sub(r"\s+", " ", data).strip()
+        if not text:
+            return
+
+        self.text_lines.append(text)
+        if self._current_href:
+            self._current_text.append(text)
 
 
 def _parse_category_html(html: str) -> list[dict[str, Any]]:
@@ -147,6 +207,201 @@ def _build_url(day_date: date_type, dining_commons: str) -> str:
     encoded = urllib.parse.quote(date_str, safe="")
     tid = DINING_COMMONS[dining_commons]["tid"]
     return f"{AJAX_BASE}?tid={tid}&date={encoded}"
+
+
+def _location_url(dining_commons: str) -> str:
+    return f"{LOCATION_BASE}/{dining_commons}"
+
+
+def _section(lines: list[str], start: str, end_markers: set[str]) -> list[str]:
+    try:
+        start_index = lines.index(start) + 1
+    except ValueError:
+        return []
+
+    section_lines: list[str] = []
+    for line in lines[start_index:]:
+        if line in end_markers:
+            break
+        section_lines.append(line)
+    return section_lines
+
+
+def _time_to_minutes(value: str) -> int | None:
+    cleaned = value.strip().lower().replace(".", "")
+    if cleaned == "midnight":
+        return 24 * 60
+    if cleaned == "noon":
+        return 12 * 60
+
+    match = re.search(r"(\d{1,2})(?::(\d{2}))?\s*(am|pm)", cleaned)
+    if not match:
+        return None
+
+    hour = int(match.group(1))
+    minute = int(match.group(2) or 0)
+    period = match.group(3)
+    if period == "am" and hour == 12:
+        hour = 0
+    elif period == "pm" and hour != 12:
+        hour += 12
+
+    return hour * 60 + minute
+
+
+def _parse_hours_range(value: str) -> tuple[int | None, int | None]:
+    parts = re.split(r"\s+-\s+", value, maxsplit=1)
+    if len(parts) != 2:
+        return None, None
+    return _time_to_minutes(parts[0]), _time_to_minutes(parts[1])
+
+
+def _expand_days(value: str) -> list[str]:
+    normalized = value.lower().replace("'", "")
+    found = [day for day in WEEKDAY_ORDER if re.search(rf"\b{day}\b", normalized)]
+    if len(found) == 1:
+        return found
+    if len(found) >= 2 and "-" in normalized:
+        start = WEEKDAY_ORDER.index(found[0])
+        end = WEEKDAY_ORDER.index(found[-1])
+        if start <= end:
+            return WEEKDAY_ORDER[start : end + 1]
+        return WEEKDAY_ORDER[start:] + WEEKDAY_ORDER[: end + 1]
+    return found
+
+
+def _parse_regular_hours(lines: list[str]) -> list[dict[str, Any]]:
+    section = _section(lines, "Regular Hours of Operation", {"Accepted Payment", "Location Manager", "Our Location"})
+    hours: list[dict[str, Any]] = []
+    index = 0
+    while index + 2 < len(section):
+        label, days, range_text = section[index : index + 3]
+        open_minutes, close_minutes = _parse_hours_range(range_text)
+        hours.append(
+            {
+                "label": label,
+                "days": days,
+                "hours": range_text,
+                "days_of_week": _expand_days(days),
+                "open_minutes": open_minutes,
+                "close_minutes": close_minutes,
+            }
+        )
+        index += 3
+    return hours
+
+
+def _parse_special_dates(value: str, year: int) -> tuple[str | None, str | None]:
+    matches = re.findall(r"(\d{1,2})/(\d{1,2})", value)
+    if not matches:
+        return None, None
+
+    def as_date(parts: tuple[str, str]) -> str:
+        month, day = parts
+        return date_type(year, int(month), int(day)).isoformat()
+
+    start = as_date(matches[0])
+    end = as_date(matches[-1])
+    return start, end
+
+
+def _parse_special_hours(lines: list[str], year: int) -> list[dict[str, Any]]:
+    special: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for index, line in enumerate(lines):
+        if not line.endswith("Hours") or line == "Regular Hours of Operation":
+            continue
+
+        section_lines: list[str] = []
+        for section_line in lines[index + 1 :]:
+            if section_line == "Regular Hours of Operation" or section_line.endswith("Hours"):
+                break
+            section_lines.append(section_line)
+
+        section_index = 0
+        while section_index + 1 < len(section_lines):
+            days = section_lines[section_index]
+            hours = section_lines[section_index + 1]
+            key = (line, days, hours)
+            if key in seen:
+                section_index += 2
+                continue
+            seen.add(key)
+            open_minutes, close_minutes = _parse_hours_range(hours)
+            date_start, date_end = _parse_special_dates(days, year)
+            special.append(
+                {
+                    "label": line,
+                    "days": days,
+                    "hours": hours,
+                    "date_start": date_start,
+                    "date_end": date_end,
+                    "open_minutes": open_minutes,
+                    "close_minutes": close_minutes,
+                }
+            )
+            section_index += 2
+
+    return special
+
+
+def _parse_payment_methods(lines: list[str]) -> list[str]:
+    return _section(lines, "Accepted Payment", {"Location Manager", "Our Location"})
+
+
+def _parse_description(lines: list[str], display_name: str) -> str:
+    candidates = [f"{display_name} Commons", display_name]
+    for candidate in candidates:
+        for index, line in enumerate(lines):
+            if line != candidate:
+                continue
+            for next_line in lines[index + 1 :]:
+                if next_line.startswith("Late Night") or next_line == "Our Location":
+                    break
+                if len(next_line) > 80:
+                    return next_line
+    return ""
+
+
+def _parse_address(lines: list[str]) -> str:
+    for index, line in enumerate(lines):
+        if line != "Our Location":
+            continue
+        for next_line in lines[index + 1 : index + 5]:
+            if re.search(r"\bMA\b\s+\d{5}", next_line):
+                return next_line
+    return ""
+
+
+def _parse_location_page(dining_commons: str, html: str, year: int | None = None) -> dict[str, Any]:
+    parser = _LocationPageParser()
+    parser.feed(html)
+    year = year or datetime.now(ZoneInfo("America/New_York")).year
+    display_name = DINING_COMMONS[dining_commons]["display_name"]
+    source_url = _location_url(dining_commons)
+    livestreams = []
+    seen_links: set[tuple[str, str]] = set()
+    for link in parser.links:
+        if "livestream" not in link["label"].lower():
+            continue
+        url = urllib.parse.urljoin(source_url, link["url"])
+        key = (link["label"], url)
+        if key in seen_links:
+            continue
+        seen_links.add(key)
+        livestreams.append({"label": link["label"], "url": url})
+
+    return {
+        "dining_commons": dining_commons,
+        "display_name": display_name,
+        "address": _parse_address(parser.text_lines),
+        "description": _parse_description(parser.text_lines, display_name),
+        "regular_hours": _parse_regular_hours(parser.text_lines),
+        "special_hours": _parse_special_hours(parser.text_lines, year),
+        "payment_methods": _parse_payment_methods(parser.text_lines),
+        "livestreams": livestreams,
+        "source_url": source_url,
+    }
 
 
 def _parse_api_response(raw_json: Any) -> dict[str, dict[str, list[dict[str, Any]]]] | None:
@@ -183,6 +438,35 @@ def fetch_day_http(day_date: date_type, dining_commons: str) -> dict[str, Any] |
     if meals is None:
         logger.warning("No meal data parsed for %s %s.", dining_commons, day_date)
     return meals
+
+
+def fetch_commons_metadata(dining_commons: str) -> dict[str, Any]:
+    url = _location_url(dining_commons)
+    request = urllib.request.Request(url, headers={**HEADERS, "Accept": "text/html,application/xhtml+xml"})
+    try:
+        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT, context=_ssl_context()) as response:
+            html = response.read().decode("utf-8")
+        metadata = _parse_location_page(dining_commons, html)
+        logger.info(
+            "Metadata OK - %s: %d regular hours, %d special hours",
+            dining_commons,
+            len(metadata.get("regular_hours", [])),
+            len(metadata.get("special_hours", [])),
+        )
+        return metadata
+    except Exception as exc:
+        logger.warning("Location metadata fetch failed for %s: %s", dining_commons, exc)
+        return {
+            "dining_commons": dining_commons,
+            "display_name": DINING_COMMONS[dining_commons]["display_name"],
+            "address": "",
+            "description": "",
+            "regular_hours": [],
+            "special_hours": [],
+            "payment_methods": [],
+            "livestreams": [],
+            "source_url": url,
+        }
 
 
 async def _fetch_day_playwright(
@@ -290,8 +574,14 @@ def run_scrape(
     )
 
     scraped_days: dict[str, Any] = {}
+    commons_metadata: dict[str, Any] = {}
     failed: list[dict[str, str]] = []
     success_count = 0
+
+    for commons_index, dining_commons in enumerate(commons):
+        commons_metadata[dining_commons] = fetch_commons_metadata(dining_commons)
+        if request_delay > 0 and commons_index < len(commons) - 1:
+            time.sleep(request_delay)
 
     for day_index, day_date in enumerate(dates):
         day_key = day_date.isoformat()
@@ -334,6 +624,7 @@ def run_scrape(
         "range_end": dates[-1].isoformat(),
         "scraped_at": datetime.now(ny_tz).isoformat(),
         "dining_commons": commons,
+        "commons_metadata": commons_metadata,
         "days": scraped_days,
         "failed": failed,
     }
@@ -353,6 +644,9 @@ def print_summary(menu: dict[str, Any]):
     failed = menu.get("failed", [])
     if failed:
         print(f"Partial failures: {len(failed)}")
+    metadata_count = len(menu.get("commons_metadata", {}))
+    if metadata_count:
+        print(f"Dining metadata: {metadata_count} commons")
     print()
 
     for day_key, day_data in menu.get("days", {}).items():
@@ -420,7 +714,8 @@ def main():
         summary = upload_menu_payload(menu)
         print(
             "Supabase upload complete: "
-            f"{summary['rows']} row(s), {summary['days']} day(s), {summary['commons']} commons."
+            f"{summary['rows']} row(s), {summary['days']} day(s), "
+            f"{summary['commons']} commons, {summary.get('metadata', 0)} metadata row(s)."
         )
     elif args.upload_supabase:
         print("Supabase upload skipped.", file=sys.stderr)

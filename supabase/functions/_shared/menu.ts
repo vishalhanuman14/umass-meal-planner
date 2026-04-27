@@ -12,6 +12,14 @@ export type MenuItem = {
   serving_size: string;
   calories: number;
   calories_from_fat: number;
+  total_fat_dv: number;
+  saturated_fat_dv: number;
+  cholesterol_dv: number;
+  sodium_dv: number;
+  carbs_dv: number;
+  fiber_dv: number;
+  sugars_dv: number;
+  protein_dv: number;
   protein_g: number;
   fat_g: number;
   saturated_fat_g: number;
@@ -29,6 +37,19 @@ export type MenuItem = {
   recipe_webcode: string;
 };
 
+export type DiningCommonsMetadata = {
+  dining_commons: string;
+  display_name: string;
+  address: string;
+  description: string;
+  regular_hours: Array<Record<string, unknown>>;
+  special_hours: Array<Record<string, unknown>>;
+  payment_methods: string[];
+  livestreams: Array<Record<string, unknown>>;
+  source_url: string;
+  updated_at: string;
+};
+
 const MENU_SELECT = `
   id,
   date,
@@ -39,6 +60,14 @@ const MENU_SELECT = `
   serving_size,
   calories,
   calories_from_fat,
+  total_fat_dv,
+  saturated_fat_dv,
+  cholesterol_dv,
+  sodium_dv,
+  carbs_dv,
+  fiber_dv,
+  sugars_dv,
+  protein_dv,
   protein_g,
   fat_g,
   saturated_fat_g,
@@ -54,6 +83,19 @@ const MENU_SELECT = `
   ingredient_list,
   carbon_rating,
   recipe_webcode
+`;
+
+const METADATA_SELECT = `
+  dining_commons,
+  display_name,
+  address,
+  description,
+  regular_hours,
+  special_hours,
+  payment_methods,
+  livestreams,
+  source_url,
+  updated_at
 `;
 
 const VALID_COMMONS = new Set(["worcester", "franklin", "hampshire", "berkshire"]);
@@ -124,6 +166,28 @@ export async function fetchMenuItems(
   return (data ?? []) as MenuItem[];
 }
 
+export async function fetchDiningCommonsMetadata(
+  supabase: SupabaseClient,
+  diningCommons?: string[],
+): Promise<DiningCommonsMetadata[]> {
+  const commons = normalizeDiningCommons(diningCommons);
+  let query = supabase
+    .from("dining_commons_metadata")
+    .select(METADATA_SELECT);
+
+  if (commons.length > 0) {
+    query = query.in("dining_commons", commons);
+  }
+
+  const { data, error } = await query.order("dining_commons", { ascending: true });
+
+  if (error) {
+    throw new HttpError(500, `Could not load dining metadata: ${error.message}`, false);
+  }
+
+  return (data ?? []) as DiningCommonsMetadata[];
+}
+
 function truncate(value: string, maxLength: number): string {
   if (value.length <= maxLength) {
     return value;
@@ -140,10 +204,47 @@ function tagsText(tags: string[] | null | undefined): string {
   return tags.join(", ");
 }
 
-function diningCommonsContext(commons: string[]): string {
-  const lines = commons
-    .map((value) => COMMONS_CONTEXT[value])
-    .filter((value): value is string => Boolean(value));
+function hoursText(rows: Array<Record<string, unknown>> | null | undefined, maxRows = 2): string {
+  if (!rows || rows.length === 0) {
+    return "";
+  }
+
+  return rows
+    .slice(0, maxRows)
+    .map((row) => {
+      const label = typeof row.label === "string" ? row.label : "";
+      const days = typeof row.days === "string" ? row.days : "";
+      const hours = typeof row.hours === "string" ? row.hours : "";
+      return [label, days, hours].filter(Boolean).join(" ");
+    })
+    .filter(Boolean)
+    .join("; ");
+}
+
+function metadataByCommons(metadata: DiningCommonsMetadata[] | undefined): Map<string, DiningCommonsMetadata> {
+  return new Map((metadata ?? []).map((row) => [row.dining_commons, row]));
+}
+
+function diningCommonsContext(commons: string[], metadata?: DiningCommonsMetadata[]): string {
+  const metadataMap = metadataByCommons(metadata);
+  const lines = commons.map((value) => {
+    const row = metadataMap.get(value);
+    if (!row) {
+      return COMMONS_CONTEXT[value];
+    }
+
+    const display = row.display_name || COMMONS_LABELS[value] || value;
+    const regular = hoursText(row.regular_hours);
+    const special = hoursText(row.special_hours, 1);
+    const address = row.address ? `address: ${row.address}` : "";
+    const parts = [
+      `${display}:`,
+      regular ? `regular hours ${regular}` : "",
+      special ? `special hours ${special}` : "",
+      address,
+    ].filter(Boolean);
+    return parts.join(" ");
+  }).filter((value): value is string => Boolean(value));
 
   if (lines.length === 0) {
     return "";
@@ -158,7 +259,7 @@ function periodLabel(period: string): string {
 
 export function formatMenuForPrompt(
   items: MenuItem[],
-  options: { includeIngredients?: boolean } = {},
+  options: { includeIngredients?: boolean; metadata?: DiningCommonsMetadata[] } = {},
 ): string {
   if (items.length === 0) {
     return "No menu items are available for today.";
@@ -166,7 +267,7 @@ export function formatMenuForPrompt(
 
   const lines: string[] = [];
   const commons = [...new Set(items.map((item) => item.dining_commons))];
-  const context = diningCommonsContext(commons);
+  const context = diningCommonsContext(commons, options.metadata);
   if (context) {
     lines.push(context);
   }
@@ -186,10 +287,17 @@ export function formatMenuForPrompt(
           ? ` | ingredients: ${truncate(item.ingredient_list.trim(), 180)}`
           : "";
         const carbon = item.carbon_rating ? ` | carbon: ${item.carbon_rating}` : "";
-        const health = item.healthfulness ? ` | healthfulness: ${item.healthfulness}/100` : "";
+        const health = item.healthfulness ? ` | healthfulness: ${item.healthfulness}/7` : "";
+        const dailyValue = [
+          item.protein_dv ? `protein ${item.protein_dv}% DV` : "",
+          item.carbs_dv ? `carbs ${item.carbs_dv}% DV` : "",
+          item.total_fat_dv ? `fat ${item.total_fat_dv}% DV` : "",
+          item.sodium_dv ? `sodium ${item.sodium_dv}% DV` : "",
+        ].filter(Boolean).join(", ");
+        const dv = dailyValue ? ` | daily value: ${dailyValue}` : "";
 
         lines.push(
-          `- ${item.item_name} | station: ${item.station} | ${item.calories} cal | ${item.protein_g}g P | ${item.fat_g}g F | ${item.carbs_g}g C | fiber: ${item.fiber_g}g | sugar: ${item.sugars_g}g | sodium: ${item.sodium_mg}mg | serving: ${item.serving_size} | tags: ${tagsText(item.dietary_tags)} | allergens: ${allergens}${carbon}${health}${ingredients}`,
+          `- ${item.item_name} | station: ${item.station} | ${item.calories} cal | ${item.protein_g}g P | ${item.fat_g}g F | ${item.carbs_g}g C | fiber: ${item.fiber_g}g | sugar: ${item.sugars_g}g | sodium: ${item.sodium_mg}mg | serving: ${item.serving_size} | tags: ${tagsText(item.dietary_tags)} | allergens: ${allergens}${dv}${carbon}${health}${ingredients}`,
         );
       }
     }

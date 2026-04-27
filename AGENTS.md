@@ -60,12 +60,14 @@ The developer (Vishnu) is a UMass student who:
 - Intended scheduled automation is the GitHub Actions workflow `.github/workflows/scrape.yml`: run the Python scraper daily, upload menu rows to Supabase with repo secrets, then app/Edge Functions read those rows. Do not replace this with a scheduled Supabase Edge Function unless the scraper is rewritten for Deno.
 - GitHub Actions workflow `Daily Menu Scrape` is active on `origin/main`. Repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured. Manual run `24877254684` succeeded after uploader-side deduplication by `(date, dining_commons, meal_period, item_name)`.
 - Supabase `menu_items` are seeded for 2026-04-24 through 2026-04-30. The 2026-04-24 count was verified at 595 rows across all four dining commons.
+- Dining hall context now lives in `dining_commons_metadata`, populated by the Python scraper from UMass location pages. It stores regular hours, special hours, address, payment methods, livestream links, source URL, and update time. The app uses this sparingly on Home for the recommended dining commons; do not turn it into a cluttered hall directory.
 - Current UI direction: warm, welcoming, DoorDash-like food utility, not a health tracker and not the old dark board UI.
 - The old Claude Design project `UMass Dining Board UI` remains in `docs/design/claude/` as historical reference only. Do not use its dark full-height surface direction for new UI work.
 - The Expo app should use cream full-screen backgrounds, white rounded cards, soft shadows, DoorDash-like red primary pills, soft white/cream secondary pills, dining-common color dots, sparse copy, and Home as "what to eat right now".
 - Every visible element needs a job: help the student decide what to eat, ask a menu question, or adjust preferences. Remove anything that only decorates or explains the obvious.
 - Keep Home focused on the hero recommendation and meal cards. `Try another` is secondary, not the main CTA. Top nutrition summary should stay lightweight: calories and protein only unless there is a product reason to add more.
 - Keep meal item rows uncluttered. Show only the food name and essential calories/protein on the card; put station, serving size, extra nutrition, allergens, ingredients, carbon rating, and healthfulness inside a tap-open food detail card.
+- `% Daily Value` nutrition fields are scraped and stored for detail views only. Keep DV numbers out of main meal rows and Home summary.
 - Settings should prioritize meal preferences first, then dining commons and notes, with body/account details lower on the page.
 - Chat answers should be short and scannable: one direct recommendation plus up to two alternates by default.
 - Keep UI copy sparse. Remove explanatory/philosophy text when the control or data already explains itself. Prefer labels like `Any`, `Notes`, `Ask`, `Regen`; avoid paragraphs on Home/onboarding and avoid repeating context already shown by navigation.
@@ -97,6 +99,7 @@ The developer (Vishnu) is a UMass student who:
 ### Scraper
 - HTTP fetch works reliably. Playwright fallback exists but rarely needed.
 - The scraper extracts `data-ingredient-list`; keep it because it is useful for allergen/dietary filtering.
+- The scraper also fetches UMass dining common location pages for open-hours metadata. If metadata parsing breaks, keep menu scraping/uploading functional and let the UI degrade without the Home status line.
 - Scraper can save local JSON and upload to Supabase with `--upload-supabase`.
 - Supabase uploads intentionally deduplicate only by the DB conflict key `(date, dining_commons, meal_period, item_name)`. Do not deduplicate only by item name because the same item can appear in multiple periods.
 

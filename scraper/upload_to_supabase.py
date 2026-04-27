@@ -8,7 +8,7 @@ Rows are upserted by date, dining_commons, meal_period, and item_name.
 from __future__ import annotations
 
 import os
-from datetime import date, timedelta
+from datetime import date, datetime, timezone, timedelta
 from typing import TYPE_CHECKING, Any
 
 from dotenv import load_dotenv
@@ -60,6 +60,14 @@ def flatten_menu_payload(menu: dict[str, Any]) -> list[dict[str, Any]]:
                             "serving_size": item.get("serving_size") or "1 serving",
                             "calories": int(item.get("calories") or 0),
                             "calories_from_fat": int(item.get("calories_from_fat") or 0),
+                            "total_fat_dv": int(item.get("total_fat_dv") or 0),
+                            "saturated_fat_dv": int(item.get("saturated_fat_dv") or 0),
+                            "cholesterol_dv": int(item.get("cholesterol_dv") or 0),
+                            "sodium_dv": int(item.get("sodium_dv") or 0),
+                            "carbs_dv": int(item.get("carbs_dv") or 0),
+                            "fiber_dv": int(item.get("fiber_dv") or 0),
+                            "sugars_dv": int(item.get("sugars_dv") or 0),
+                            "protein_dv": int(item.get("protein_dv") or 0),
                             "protein_g": float(item.get("protein_g") or 0),
                             "fat_g": float(item.get("fat_g") or 0),
                             "saturated_fat_g": float(item.get("saturated_fat_g") or 0),
@@ -85,6 +93,29 @@ def flatten_menu_payload(menu: dict[str, Any]) -> list[dict[str, Any]]:
     return list(rows_by_key.values())
 
 
+def flatten_commons_metadata(menu: dict[str, Any]) -> list[dict[str, Any]]:
+    updated_at = datetime.now(timezone.utc).isoformat()
+    rows = []
+    for dining_commons, metadata in menu.get("commons_metadata", {}).items():
+        if not isinstance(metadata, dict):
+            continue
+        rows.append(
+            {
+                "dining_commons": dining_commons,
+                "display_name": metadata.get("display_name") or dining_commons.title(),
+                "address": metadata.get("address") or "",
+                "description": metadata.get("description") or "",
+                "regular_hours": metadata.get("regular_hours") or [],
+                "special_hours": metadata.get("special_hours") or [],
+                "payment_methods": metadata.get("payment_methods") or [],
+                "livestreams": metadata.get("livestreams") or [],
+                "source_url": metadata.get("source_url") or "",
+                "updated_at": updated_at,
+            }
+        )
+    return rows
+
+
 def _chunks(rows: list[dict[str, Any]], size: int = BATCH_SIZE):
     for index in range(0, len(rows), size):
         yield rows[index : index + size]
@@ -96,6 +127,14 @@ def upload_menu_payload(menu: dict[str, Any], client: "Client | None" = None) ->
         raise RuntimeError("No menu item rows found in scrape payload.")
 
     client = client or get_supabase_client()
+    metadata_rows = flatten_commons_metadata(menu)
+    if metadata_rows:
+        metadata_response = client.table("dining_commons_metadata").upsert(
+            metadata_rows,
+            on_conflict="dining_commons",
+        ).execute()
+        if getattr(metadata_response, "error", None):
+            raise RuntimeError(str(metadata_response.error))
 
     for batch in _chunks(rows):
         response = client.table("menu_items").upsert(batch, on_conflict=UPSERT_CONFLICT).execute()
@@ -111,4 +150,5 @@ def upload_menu_payload(menu: dict[str, Any], client: "Client | None" = None) ->
         "rows": len(rows),
         "days": len(menu.get("days", {})),
         "commons": len(menu.get("dining_commons", [])),
+        "metadata": len(metadata_rows),
     }

@@ -97,6 +97,7 @@ Supabase owns authentication, database storage, row-level security, and Edge Fun
 Core tables:
 
 - `menu_items`: daily scraped menu items, station, nutrition data, dietary tags, allergens, ingredients, carbon rating, and dining metadata.
+- `dining_commons_metadata`: dining hall hours, special hours, address, payment methods, and livestream links scraped from UMass location pages.
 - `profiles`: user onboarding profile and targets.
 - `meal_plans`: cached daily Gemini-generated plans.
 - `chat_messages`: persisted chat history.
