@@ -6,7 +6,8 @@ Current UI direction: warm, welcoming, bubbly food-ordering style inspired by Do
 
 ### Now
 
-1. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
+1. Add GitHub secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`, then run `Deploy Supabase Backend` manually once from GitHub Actions.
+2. Monitor the next scheduled `Daily Menu Scrape` run to confirm the cron path continues to upload rows without manual dispatch.
 
 ### Design Rules For This Pass
 
@@ -718,3 +719,11 @@ Important constraint: older Claude Design output under `docs/design/claude/` is 
 - Redeployed Supabase Edge Functions `generate-meal-plan` and `chat`; unauthenticated smoke tests still return `401 Missing authorization header`.
 - Manual GitHub Actions run `24977084795` for `Daily Menu Scrape` succeeded on commit `8bb82ac` and uploaded `3850` menu rows plus `4` dining metadata rows.
 - Verification passed: `python3 -m pytest tests/ -v`, `python3 -m compileall scraper`, `npm run typecheck`, `git diff --check`, and a live one-day dry scrape for 2026-04-27 across all four dining commons.
+
+## Completed History - 2026-04-27 Deployment Automation
+
+- Added `.github/workflows/deploy-supabase.yml` for Supabase backend deployment.
+- The workflow validates Python tests, scraper compile, and mobile TypeScript before deployment.
+- The deploy job links the Supabase project, pushes migrations, deploys `generate-meal-plan` and `chat`, then smoke-tests that both function endpoints still return protected `401` responses when unauthenticated.
+- The workflow runs manually with `workflow_dispatch` and automatically on `main` pushes that change `supabase/functions/**` or `supabase/migrations/**`.
+- Remaining setup: add repo secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`; existing repo secrets only include `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.

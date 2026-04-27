@@ -125,6 +125,25 @@ Current workflow behavior:
 - Uploads today plus the next 6 days.
 - Uses GitHub repo secrets `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
 
+## Backend Deployment
+
+Supabase backend deployment is handled by:
+
+```text
+.github/workflows/deploy-supabase.yml
+```
+
+The workflow validates Python and mobile code, pushes Supabase migrations, deploys `generate-meal-plan` and `chat`, then smoke-tests that both functions are reachable and still protected by JWT auth.
+
+Required GitHub repo secrets:
+
+```bash
+SUPABASE_ACCESS_TOKEN   # Supabase account access token for CLI deploys
+SUPABASE_DB_PASSWORD    # Project database password, not the service-role key
+```
+
+It can be run manually with `workflow_dispatch` and also runs on pushes to `main` that change `supabase/functions/**` or `supabase/migrations/**`.
+
 ## Repo Layout
 
 ```text
