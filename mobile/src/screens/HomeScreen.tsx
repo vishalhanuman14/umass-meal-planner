@@ -419,12 +419,7 @@ function BestMove({
   const context = diningContextLine(metadata, availablePeriods);
 
   if (status.isOpen === false) {
-    return (
-      <ClosedHero
-        commonLabel={common.label}
-        commonColor={common.color}
-      />
-    );
+    return <ClosedHero />;
   }
 
   return (
@@ -451,22 +446,12 @@ function BestMove({
   );
 }
 
-function ClosedHero({
-  commonLabel,
-  commonColor
-}: {
-  commonLabel: string;
-  commonColor: string;
-}) {
+function ClosedHero() {
   return (
     <View style={styles.closedHero}>
-      <View style={styles.heroTop}>
+      <View style={styles.closedTop}>
         <View style={styles.closedBadge}>
           <Text style={styles.closedBadgeText}>Closed now</Text>
-        </View>
-        <View style={styles.commonPill}>
-          <View style={[styles.commonDot, { backgroundColor: commonColor }]} />
-          <Text style={styles.commonPillText}>{commonLabel}</Text>
         </View>
       </View>
       <Text style={styles.closedTitle}>Nothing available right now</Text>
@@ -540,6 +525,7 @@ const styles = StyleSheet.create({
   heroButton: { minHeight: 42, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.surfaceWarm },
   heroButtonText: { color: colors.primary, fontSize: 13, fontWeight: "900" },
   closedHero: { ...shadows.card, gap: 12, padding: 20, borderRadius: 28, backgroundColor: colors.surface },
+  closedTop: { flexDirection: "row", alignItems: "center" },
   closedBadge: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.surfaceWarm },
   closedBadgeText: { color: colors.quiet, fontSize: 12, fontWeight: "900" },
   closedTitle: { color: colors.text, fontSize: 23, fontWeight: "900", lineHeight: 29 },
