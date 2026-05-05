@@ -61,6 +61,11 @@ export default function ChatScreen({ navigation }: ChatProps) {
 
   useEffect(() => {
     navigation.setOptions({
+      headerLeft: () => (
+        <Pressable onPress={() => navigation.navigate("Home")}>
+          <Text style={styles.headerBack}>‹ Home</Text>
+        </Pressable>
+      ),
       headerRight: () => messages.length ? (
         <Pressable onPress={confirmClearChat}>
           <Text style={styles.headerAction}>Clear</Text>
@@ -191,6 +196,7 @@ const styles = StyleSheet.create({
   list: { padding: 16, gap: 12 },
   emptyList: { flexGrow: 1, alignItems: "center", justifyContent: "center", padding: 24 },
   empty: { color: colors.muted, textAlign: "center" },
+  headerBack: { color: colors.text, fontSize: 16, fontWeight: "800" },
   headerAction: { color: colors.muted, fontWeight: "800" },
   inputBar: {
     flexDirection: "row",
