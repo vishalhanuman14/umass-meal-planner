@@ -141,7 +141,7 @@ function scaleDetail(value: number | undefined, servings: number) {
   return Math.round(value * servings * 10) / 10;
 }
 
-function FoodDetailModal({
+export function FoodDetailModal({
   item,
   commonLabel,
   onClose

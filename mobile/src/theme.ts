@@ -55,6 +55,11 @@ export const commonLabels = {
 export type DiningCommonKey = keyof typeof commonColors;
 
 export function titleCase(value: string) {
+  const normalized = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  if (normalized === "grabngo" || normalized === "grab_go" || normalized === "grab_n_go") {
+    return "Grab & Go";
+  }
+
   return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 

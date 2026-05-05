@@ -55,11 +55,11 @@ if (!isSupabaseConfigured) {
 }
 
 function chunkCountKey(key: string) {
-  return `${key}:chunk-count`;
+  return `${key}.chunk-count`;
 }
 
 function chunkKey(key: string, index: number) {
-  return `${key}:chunk:${index}`;
+  return `${key}.chunk.${index}`;
 }
 
 async function removeSecureStoreItem(key: string) {

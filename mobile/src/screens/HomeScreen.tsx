@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import MealCard from "../components/MealCard";
+import MealCard, { FoodDetailModal } from "../components/MealCard";
 import { useAuth } from "../contexts/AuthContext";
 import { useProfile } from "../contexts/ProfileContext";
 import { configuredSupabaseAnonKey, configuredSupabaseUrl, supabase } from "../lib/supabase";
 import { colors, getDiningCommon, shadows, sortMealPeriod, titleCase } from "../theme";
-import type { DiningCommonsMetadata, DiningHour, HomeProps, MealPlan, MealPlanMeal, MealPlanRow } from "../types";
+import type { DiningCommonsMetadata, DiningHour, HomeProps, MealPlan, MealPlanItem, MealPlanMeal, MealPlanRow } from "../types";
 
 function todayIsoDate() {
   return easternDateString();
@@ -165,6 +165,146 @@ function diningContextLine(metadata?: DiningCommonsMetadata, availablePeriods?: 
   return [status, periods].filter(Boolean).join(" / ");
 }
 
+type GrabNGoItem = MealPlanItem & {
+  dining_commons: string;
+};
+
+type MenuItemRow = {
+  dining_commons?: string | null;
+  item_name?: string | null;
+  station?: string | null;
+  serving_size?: string | null;
+  calories?: number | string | null;
+  protein_g?: number | string | null;
+  fat_g?: number | string | null;
+  carbs_g?: number | string | null;
+  total_fat_dv?: number | string | null;
+  saturated_fat_dv?: number | string | null;
+  cholesterol_dv?: number | string | null;
+  sodium_dv?: number | string | null;
+  carbs_dv?: number | string | null;
+  fiber_dv?: number | string | null;
+  sugars_dv?: number | string | null;
+  protein_dv?: number | string | null;
+  fiber_g?: number | string | null;
+  sodium_mg?: number | string | null;
+  sugars_g?: number | string | null;
+  saturated_fat_g?: number | string | null;
+  trans_fat_g?: number | string | null;
+  cholesterol_mg?: number | string | null;
+  healthfulness?: number | string | null;
+  dietary_tags?: string[] | string | null;
+  allergens?: string | null;
+  ingredient_list?: string | null;
+  carbon_rating?: string | null;
+};
+
+const MENU_ITEM_DETAIL_COLUMNS = [
+  "dining_commons",
+  "item_name",
+  "station",
+  "serving_size",
+  "calories",
+  "protein_g",
+  "fat_g",
+  "carbs_g",
+  "total_fat_dv",
+  "saturated_fat_dv",
+  "cholesterol_dv",
+  "sodium_dv",
+  "carbs_dv",
+  "fiber_dv",
+  "sugars_dv",
+  "protein_dv",
+  "fiber_g",
+  "sodium_mg",
+  "sugars_g",
+  "saturated_fat_g",
+  "trans_fat_g",
+  "cholesterol_mg",
+  "healthfulness",
+  "dietary_tags",
+  "allergens",
+  "ingredient_list",
+  "carbon_rating"
+].join(",");
+
+function isGrabNGoPeriod(period: string) {
+  const normalized = period.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return normalized === "grabngo" || normalized === "grab_go" || normalized === "grab_n_go";
+}
+
+function numericValue(value: number | string | null | undefined) {
+  const number = Number(value ?? 0);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function optionalNumericValue(value: number | string | null | undefined) {
+  if (value == null || value === "") return undefined;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
+
+function tagsValue(value: string[] | string | null | undefined) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === "string") {
+    return value.split(",").map((tag) => tag.trim()).filter(Boolean);
+  }
+  return undefined;
+}
+
+function mapGrabNGoItem(row: MenuItemRow): GrabNGoItem | null {
+  const item = row.item_name?.trim();
+  const diningCommons = getDiningCommon(row.dining_commons).key;
+  if (!item) return null;
+
+  return {
+    dining_commons: diningCommons,
+    item,
+    station: row.station ?? undefined,
+    serving_size: row.serving_size ?? undefined,
+    servings: 1,
+    calories: numericValue(row.calories),
+    protein_g: numericValue(row.protein_g),
+    fat_g: numericValue(row.fat_g),
+    carbs_g: numericValue(row.carbs_g),
+    total_fat_dv: optionalNumericValue(row.total_fat_dv),
+    saturated_fat_dv: optionalNumericValue(row.saturated_fat_dv),
+    cholesterol_dv: optionalNumericValue(row.cholesterol_dv),
+    sodium_dv: optionalNumericValue(row.sodium_dv),
+    carbs_dv: optionalNumericValue(row.carbs_dv),
+    fiber_dv: optionalNumericValue(row.fiber_dv),
+    sugars_dv: optionalNumericValue(row.sugars_dv),
+    protein_dv: optionalNumericValue(row.protein_dv),
+    fiber_g: optionalNumericValue(row.fiber_g),
+    sodium_mg: optionalNumericValue(row.sodium_mg),
+    sugars_g: optionalNumericValue(row.sugars_g),
+    saturated_fat_g: optionalNumericValue(row.saturated_fat_g),
+    trans_fat_g: optionalNumericValue(row.trans_fat_g),
+    cholesterol_mg: optionalNumericValue(row.cholesterol_mg),
+    healthfulness: optionalNumericValue(row.healthfulness),
+    dietary_tags: tagsValue(row.dietary_tags),
+    allergens: row.allergens ?? undefined,
+    ingredient_list: row.ingredient_list ?? undefined,
+    carbon_rating: row.carbon_rating ?? undefined
+  };
+}
+
+function sortGrabNGoItems(items: GrabNGoItem[], preferredDiningCommons: string[]) {
+  const preferredKeys = preferredDiningCommons.map((item) => getDiningCommon(item).key);
+
+  return [...items].sort((left, right) => {
+    const leftPreferred = preferredKeys.indexOf(getDiningCommon(left.dining_commons).key);
+    const rightPreferred = preferredKeys.indexOf(getDiningCommon(right.dining_commons).key);
+    const leftRank = leftPreferred === -1 ? 99 : leftPreferred;
+    const rightRank = rightPreferred === -1 ? 99 : rightPreferred;
+    if (leftRank !== rightRank) return leftRank - rightRank;
+    if (right.protein_g !== left.protein_g) return right.protein_g - left.protein_g;
+    if (right.calories !== left.calories) return right.calories - left.calories;
+    return left.item.localeCompare(right.item);
+  });
+}
+
 async function invokeGenerateMealPlan(regenerate: boolean) {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
@@ -232,6 +372,22 @@ async function fetchDiningContext(date: string): Promise<DiningContext> {
   return { metadataByCommon, periodsByCommon };
 }
 
+async function fetchGrabNGoItems(date: string, preferredDiningCommons: string[]) {
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select(MENU_ITEM_DETAIL_COLUMNS)
+    .eq("date", date)
+    .eq("meal_period", "grabngo");
+
+  if (error) throw error;
+
+  const items = ((data ?? []) as MenuItemRow[])
+    .map(mapGrabNGoItem)
+    .filter((item): item is GrabNGoItem => Boolean(item));
+
+  return sortGrabNGoItems(items, preferredDiningCommons);
+}
+
 export default function HomeScreen({ navigation, route }: HomeProps) {
   const { session } = useAuth();
   const { profile } = useProfile();
@@ -241,6 +397,9 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [diningContext, setDiningContext] = useState<DiningContext>(emptyDiningContext);
+  const [grabNGoItems, setGrabNGoItems] = useState<GrabNGoItem[]>([]);
+  const preferredDiningCommons = profile?.preferred_dining_commons ?? [];
+  const preferredDiningCommonsKey = preferredDiningCommons.join("|");
 
   const loadDiningContext = useCallback(async (date: string) => {
     try {
@@ -250,6 +409,14 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
     }
   }, []);
 
+  const loadGrabNGoItems = useCallback(async (date: string) => {
+    try {
+      setGrabNGoItems(await fetchGrabNGoItems(date, preferredDiningCommons));
+    } catch {
+      setGrabNGoItems([]);
+    }
+  }, [preferredDiningCommonsKey]);
+
   const loadPlan = useCallback(
     async (generateIfMissing: boolean) => {
       if (!session?.user) return;
@@ -257,6 +424,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
       setMessage(null);
       const date = todayIsoDate();
       void loadDiningContext(date);
+      void loadGrabNGoItems(date);
       const { data, error } = await supabase
         .from("meal_plans")
         .select("*")
@@ -282,7 +450,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
       await generatePlan(false);
     },
-    [loadDiningContext, session]
+    [loadDiningContext, loadGrabNGoItems, session]
   );
 
   const generatePlan = useCallback(async (regenerate = false) => {
@@ -293,6 +461,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
       const data = await invokeGenerateMealPlan(regenerate);
       const date = typeof data?.date === "string" ? data.date : todayIsoDate();
       void loadDiningContext(date);
+      void loadGrabNGoItems(date);
       const nextPlan = (data?.plan ?? data) as MealPlan | null;
       if (!isCompletePlan(nextPlan)) {
         setMessage("Menu not available yet.");
@@ -305,7 +474,7 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
     } finally {
       setGenerating(false);
     }
-  }, [loadDiningContext]);
+  }, [loadDiningContext, loadGrabNGoItems]);
 
   useEffect(() => {
     setLoading(true);
@@ -333,7 +502,9 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
 
   const meals = plan?.meals ?? null;
   const totals = plan?.daily_total;
-  const mealEntries = meals ? (Object.entries(meals).sort(sortMealPeriod) as [string, MealPlanMeal][]) : [];
+  const mealEntries = meals
+    ? (Object.entries(meals).sort(sortMealPeriod) as [string, MealPlanMeal][]).filter(([period]) => !isGrabNGoPeriod(period))
+    : [];
   const heroMeal = chooseHeroMeal(mealEntries);
 
   return (
@@ -378,6 +549,8 @@ export default function HomeScreen({ navigation, route }: HomeProps) {
         ) : null}
 
         {totals ? <DailyFit totals={totals} /> : null}
+
+        <GrabNGoSection items={grabNGoItems} />
 
         {mealEntries.length
           ? mealEntries.map(([period, meal]) => <MealCard key={period} period={period} meal={meal} />)
@@ -470,6 +643,45 @@ function DailyFit({ totals }: { totals: MealPlan["daily_total"] }) {
   );
 }
 
+function GrabNGoSection({ items }: { items: GrabNGoItem[] }) {
+  const [selectedItem, setSelectedItem] = useState<GrabNGoItem | null>(null);
+  if (!items.length) return null;
+
+  const visibleItems = items.slice(0, 4);
+  const selectedCommon = selectedItem ? getDiningCommon(selectedItem.dining_commons).label : "";
+
+  return (
+    <View style={styles.grabCard}>
+      <View style={styles.grabHeader}>
+        <Text style={styles.grabTitle}>Grab & Go</Text>
+        <Text style={styles.grabCount}>{items.length} today</Text>
+      </View>
+
+      <View style={styles.grabItems}>
+        {visibleItems.map((item, index) => {
+          const common = getDiningCommon(item.dining_commons);
+          return (
+            <Pressable key={`${common.key}-${item.item}-${index}`} style={styles.grabRow} onPress={() => setSelectedItem(item)}>
+              <View style={styles.grabItemText}>
+                <Text style={styles.grabItemName} numberOfLines={2}>{item.item}</Text>
+                <View style={styles.grabCommon}>
+                  <View style={[styles.grabDot, { backgroundColor: common.color }]} />
+                  <Text style={styles.grabCommonText}>{common.label}</Text>
+                </View>
+              </View>
+              <Text style={styles.grabMacro}>
+                {Math.round(item.calories)} cal{"\n"}{Math.round(item.protein_g)}g P
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <FoodDetailModal item={selectedItem} commonLabel={selectedCommon} onClose={() => setSelectedItem(null)} />
+    </View>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.stat}>
@@ -534,6 +746,27 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: 3 },
   statValue: { color: colors.text, fontSize: 14, fontWeight: "900" },
   statLabel: { color: colors.quiet, fontSize: 12 },
+  grabCard: { ...shadows.card, gap: 14, padding: 18, borderRadius: 24, backgroundColor: colors.surface },
+  grabHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  grabTitle: { color: colors.text, fontSize: 18, fontWeight: "900" },
+  grabCount: { color: colors.quiet, fontSize: 12, fontWeight: "800" },
+  grabItems: { gap: 8 },
+  grabRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 11,
+    borderRadius: 16,
+    backgroundColor: colors.backgroundAlt
+  },
+  grabItemText: { flex: 1, gap: 7 },
+  grabItemName: { color: colors.text, fontSize: 15, fontWeight: "800", lineHeight: 20 },
+  grabCommon: { flexDirection: "row", alignItems: "center", gap: 6 },
+  grabDot: { width: 7, height: 7, borderRadius: 7 },
+  grabCommonText: { color: colors.muted, fontSize: 12, fontWeight: "700" },
+  grabMacro: { color: colors.muted, fontSize: 13, lineHeight: 18, textAlign: "right", fontWeight: "700" },
   emptyAction: { marginTop: 4, minHeight: 44, paddingHorizontal: 20, alignItems: "center", justifyContent: "center", borderRadius: 999, backgroundColor: colors.primary },
   emptyActionText: { color: colors.onPrimary, fontWeight: "900" }
 });
